@@ -1,4 +1,5 @@
-import { BookOpenText, LogOut, MessageSquareText } from "lucide-react";
+import { BookOpenText, Cable, LogOut, MessageSquareText } from "lucide-react";
+import Link from "next/link";
 
 import { auth, signOut } from "@/auth";
 import { Button } from "@/components/ui/button";
@@ -61,6 +62,17 @@ export default async function Home() {
               All pages in this app are protected with auth.
             </p>
           </div>
+
+          <Link
+            href="/test-upload"
+            className="rounded-lg border bg-card p-5 text-card-foreground transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+          >
+            <Cable className="mb-4 size-5 text-muted-foreground" />
+            <h2 className="font-medium">Ingest pipeline</h2>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              Click to test ingest pipeline.
+            </p>
+          </Link>
         </div>
       </section>
     </main>

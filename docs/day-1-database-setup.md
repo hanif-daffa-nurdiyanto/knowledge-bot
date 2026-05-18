@@ -4,7 +4,7 @@
 
 - Enables `pgvector` for Supabase vector search.
 - Creates `users`, `documents`, and `chunks`.
-- Stores `text-embedding-3-small` embeddings as `vector(1536)`.
+- Stores `nomic-embed-text` embeddings as `vector(768)`.
 - Adds cosine IVFFlat index for similarity search.
 - Adds `match_document_chunks()` RPC for RAG retrieval.
 - Enables basic RLS policies for authenticated users and admins.
@@ -32,7 +32,12 @@ Provide these before continuing to the next tasks:
 - Supabase project URL: `NEXT_PUBLIC_SUPABASE_URL`
 - Supabase publishable anon key: `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 - Supabase service role key: `SUPABASE_SERVICE_ROLE_KEY`
-- OpenAI API key for embeddings: `OPENAI_API_KEY`
+- Ollama base URL for local embeddings: `OLLAMA_BASE_URL`
+- Ollama embedding model: `OLLAMA_EMBEDDING_MODEL`
+- Ollama embedding dimensions: `OLLAMA_EMBEDDING_DIMENSIONS`
+- OpenAI API key for production embeddings: `OPENAI_API_KEY`
+- OpenAI embedding model for production: `OPENAI_EMBEDDING_MODEL`
+- OpenAI embedding dimensions for production: `OPENAI_EMBEDDING_DIMENSIONS`
 - Anthropic API key for Claude responses: `ANTHROPIC_API_KEY`
 - Google OAuth client ID and secret: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
 - Allowed company email domain, for example `company.com`: `ALLOWED_EMAIL_DOMAIN`

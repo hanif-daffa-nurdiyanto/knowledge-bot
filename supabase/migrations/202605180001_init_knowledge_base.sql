@@ -1,5 +1,5 @@
 -- Day 1 foundation: Supabase schema for Internal Knowledge Base Bot.
--- Embeddings use OpenAI text-embedding-3-small, which returns 1536 dimensions.
+-- Embeddings use Ollama nomic-embed-text, which returns 768 dimensions.
 
 create schema if not exists extensions;
 
@@ -34,7 +34,7 @@ create table if not exists public.chunks (
   id uuid primary key default extensions.gen_random_uuid(),
   document_id uuid not null references public.documents(id) on delete cascade,
   content text not null,
-  embedding extensions.vector(1536),
+  embedding extensions.vector(768),
   page_number integer,
   chunk_index integer not null,
   token_count integer,
@@ -77,7 +77,7 @@ create trigger set_documents_updated_at
   execute function public.set_updated_at();
 
 create or replace function public.match_document_chunks(
-  query_embedding extensions.vector(1536),
+  query_embedding extensions.vector(768),
   match_count integer default 5,
   match_threshold double precision default 0.75
 )
