@@ -48,13 +48,16 @@ export default async function Home() {
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="rounded-lg border bg-card p-5 text-card-foreground">
+          <Link
+            href="/chat"
+            className="rounded-lg border bg-card p-5 text-card-foreground transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+          >
             <MessageSquareText className="mb-4 size-5 text-muted-foreground" />
-            <h2 className="font-medium">Next step</h2>
+            <h2 className="font-medium">Chat RAG</h2>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              Next step is create ingestion pipeline and API chat RAG.
+              Open chat UI with streaming, markdown, and source attribution.
             </p>
-          </div>
+          </Link>
           <div className="rounded-lg border bg-card p-5 text-card-foreground">
             <BookOpenText className="mb-4 size-5 text-muted-foreground" />
             <h2 className="font-medium">Protected app</h2>
