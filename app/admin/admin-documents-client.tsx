@@ -28,6 +28,7 @@ import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { ToastViewport, useToasts } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 type AdminDocumentsClientProps = {
   userName: string;
@@ -199,10 +200,10 @@ export function AdminDocumentsClient({
         throw new Error(data.error ?? "Upload gagal.");
       }
 
-      setNotice({
-        type: "success",
-        message: `${data.name ?? file.name} diterima dan sedang diproses.`,
-      });
+      // setNotice({
+      //   type: "success",
+      //   message: `${data.name ?? file.name} diterima dan sedang diproses.`,
+      // });
       addToast({
         type: "success",
         title: "Upload diterima",
@@ -262,10 +263,10 @@ export function AdminDocumentsClient({
       const skippedCount = data.skipped?.length ?? 0;
       const message = `${seededCount} dokumen dibuat, ${skippedCount} dilewati.`;
 
-      setNotice({
-        type: "success",
-        message: `Seed demo dokumen diproses. ${message}`,
-      });
+      // setNotice({
+      //   type: "success",
+      //   message: `Seed demo dokumen diproses. ${message}`,
+      // });
       addToast({
         type: "success",
         title: "Seed demo dimulai",
@@ -315,10 +316,10 @@ export function AdminDocumentsClient({
       setDocuments((current) =>
         current.filter((document) => document.id !== documentId)
       );
-      setNotice({
-        type: "success",
-        message: "Dokumen dihapus. Chunks ikut terhapus via cascade.",
-      });
+      // setNotice({
+      //   type: "success",
+      //   message: "Dokumen dihapus. Chunks ikut terhapus via cascade.",
+      // });
       addToast({
         type: "success",
         title: "Dokumen dihapus",
@@ -344,7 +345,7 @@ export function AdminDocumentsClient({
       <ToastViewport dismissToast={dismissToast} toasts={toasts} />
       <header className="border-b">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-          <div className="flex min-w-0 items-center gap-3">
+          <Link href="/" className="flex min-w-0 items-center gap-3">
             <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <BookOpenText className="size-5" aria-hidden="true" />
             </div>
@@ -354,7 +355,7 @@ export function AdminDocumentsClient({
                 Document ingestion
               </p>
             </div>
-          </div>
+          </Link>
 
           <div className="flex min-w-0 items-center gap-3">
             <div className="hidden min-w-0 text-right sm:block">
@@ -463,7 +464,7 @@ export function AdminDocumentsClient({
             </div>
           </form>
 
-          <form
+          {/* <form
             onSubmit={handleNotionSubmit}
             className="rounded-lg border bg-card p-5 text-card-foreground shadow-sm"
           >
@@ -494,7 +495,7 @@ export function AdminDocumentsClient({
             >
               Save Notion URL
             </Button>
-          </form>
+          </form> */}
 
           {notice ? <Notice type={notice.type} message={notice.message} /> : null}
 

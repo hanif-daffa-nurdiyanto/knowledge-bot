@@ -64,13 +64,6 @@ export default async function Home() {
               Open chat UI with streaming, markdown, and source attribution.
             </p>
           </Link>
-          <div className="rounded-lg border bg-card p-5 text-card-foreground">
-            <BookOpenText className="mb-4 size-5 text-muted-foreground" />
-            <h2 className="font-medium">Protected app</h2>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              All pages in this app are protected with auth.
-            </p>
-          </div>
 
           <Link
             href="/admin"
@@ -83,16 +76,6 @@ export default async function Home() {
             </p>
           </Link>
 
-          <Link
-            href="/test-upload"
-            className="rounded-lg border bg-card p-5 text-card-foreground transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-          >
-            <Cable className="mb-4 size-5 text-muted-foreground" />
-            <h2 className="font-medium">Ingest pipeline</h2>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              Click to test ingest pipeline.
-            </p>
-          </Link>
         </div>
       </section>
     </main>

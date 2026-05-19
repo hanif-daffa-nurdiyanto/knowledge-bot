@@ -12,16 +12,16 @@ export const maxDuration = 60;
 
 const demoDocuments = [
   {
-    fileName: "SOP_Operasional_Harian_Dummy.pdf",
-    title: "SOP Operasional Harian Dummy",
+    fileName: "SOP_Operasional_Harian.pdf",
+    title: "SOP Operasional Harian",
   },
   {
-    fileName: "Dokumen_HR_Dummy.pdf",
-    title: "Dokumen HR Dummy",
+    fileName: "Dokumen_HR.pdf",
+    title: "Dokumen HR",
   },
   {
-    fileName: "Prosedur_IT_Perusahaan_Dummy.pdf",
-    title: "Prosedur IT Perusahaan Dummy",
+    fileName: "Prosedur_IT_Perusahaan.pdf",
+    title: "Prosedur IT Perusahaan",
   },
 ];
 

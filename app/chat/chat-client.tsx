@@ -420,13 +420,13 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
       current.map((item) =>
         item.id === conversation.id
           ? {
-              ...item,
-              id: persistedConversation.id,
-              title: persistedConversation.title,
-              createdAtLabel: formatDate(
-                new Date(persistedConversation.created_at)
-              ),
-            }
+            ...item,
+            id: persistedConversation.id,
+            title: persistedConversation.title,
+            createdAtLabel: formatDate(
+              new Date(persistedConversation.created_at)
+            ),
+          }
           : item
       )
     );
@@ -478,11 +478,11 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
       messages: conversation.messages.map((message) =>
         message.id === messageId
           ? {
-              ...message,
-              content: `${message.content}${patch.appendContent ?? ""}`,
-              sources: patch.sources ?? message.sources,
-              status: patch.status ?? message.status,
-            }
+            ...message,
+            content: `${message.content}${patch.appendContent ?? ""}`,
+            sources: patch.sources ?? message.sources,
+            status: patch.status ?? message.status,
+          }
           : message
       ),
     }));
@@ -672,10 +672,9 @@ function SidebarContent({
   return (
     <>
       <div className="border-b px-4 py-4">
-        <h2 className="text-sm font-semibold">Riwayat Chat</h2>
         <Button
           type="button"
-          className="mt-4 w-full justify-start"
+          className="w-full justify-start"
           onClick={onNewConversation}
         >
           <Plus className="size-4" aria-hidden="true" />
@@ -685,7 +684,7 @@ function SidebarContent({
 
       <div className="min-h-0 flex-1 overflow-y-auto p-3">
         <div className="mb-2 flex items-center justify-between px-2 text-xs font-medium uppercase text-muted-foreground">
-          <span>Riwayat</span>
+          <span>History</span>
           <Button
             type="button"
             variant="ghost"
@@ -702,34 +701,35 @@ function SidebarContent({
             <div className="h-9 rounded-md bg-muted" />
             <div className="h-9 rounded-md bg-muted" />
           </div>
-        ) : null}
-        <div className="space-y-1">
-          {conversations.map((conversation) => (
-            <button
-              key={conversation.id}
-              type="button"
-              onClick={() => onSelectConversation(conversation.id)}
-              className={cn(
-                "flex w-full items-start gap-3 rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                conversation.id === activeConversationId &&
+        ) :
+          <div className="space-y-1">
+            {conversations.map((conversation) => (
+              <button
+                key={conversation.id}
+                type="button"
+                onClick={() => onSelectConversation(conversation.id)}
+                className={cn(
+                  "flex w-full items-start gap-3 rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                  conversation.id === activeConversationId &&
                   "bg-sidebar-accent text-sidebar-accent-foreground"
-              )}
-            >
-              <MessageSquareText
-                className="mt-0.5 size-4 shrink-0 text-muted-foreground"
-                aria-hidden="true"
-              />
-              <span className="min-w-0 flex-1">
-                <span className="block truncate font-medium">
-                  {conversation.title}
+                )}
+              >
+                <MessageSquareText
+                  className="mt-0.5 size-4 shrink-0 text-muted-foreground"
+                  aria-hidden="true"
+                />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-medium">
+                    {conversation.title}
+                  </span>
+                  <span className="block text-xs text-muted-foreground">
+                    {conversation.createdAtLabel}
+                  </span>
                 </span>
-                <span className="block text-xs text-muted-foreground">
-                  {conversation.createdAtLabel}
-                </span>
-              </span>
-            </button>
-          ))}
-        </div>
+              </button>
+            ))}
+          </div>
+        }
       </div>
     </>
   );
