@@ -1,4 +1,10 @@
-import { BookOpenText, Cable, LogOut, MessageSquareText } from "lucide-react";
+import {
+  BookOpenText,
+  Cable,
+  LogOut,
+  MessageSquareText,
+  ShieldCheck,
+} from "lucide-react";
 import Link from "next/link";
 
 import { auth, signOut } from "@/auth";
@@ -65,6 +71,17 @@ export default async function Home() {
               All pages in this app are protected with auth.
             </p>
           </div>
+
+          <Link
+            href="/admin"
+            className="rounded-lg border bg-card p-5 text-card-foreground transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+          >
+            <ShieldCheck className="mb-4 size-5 text-muted-foreground" />
+            <h2 className="font-medium">Admin documents</h2>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              Upload, monitor, and delete knowledge base documents.
+            </p>
+          </Link>
 
           <Link
             href="/test-upload"

@@ -1,10 +1,10 @@
 import "server-only";
 
-import { embedTexts } from "@/lib/ai/embeddings";
+import { EMBEDDING_PROVIDER, embedTexts } from "@/lib/ai/embeddings";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const DEFAULT_MATCH_COUNT = 5;
-export const DEFAULT_MATCH_THRESHOLD = 0.75;
+export const DEFAULT_MATCH_THRESHOLD = getDefaultMatchThreshold();
 
 export type SourceChunk = {
   id: string;
@@ -26,7 +26,7 @@ export async function searchSimilarChunks(
 ) {
   const matchCount = options.matchCount ?? DEFAULT_MATCH_COUNT;
   const threshold = options.threshold ?? DEFAULT_MATCH_THRESHOLD;
-  const [queryEmbedding] = await embedTexts([query], 1);
+  const [queryEmbedding] = await embedTexts([query], 1, "query");
   const supabase = createAdminClient();
 
   const { data, error } = await supabase.rpc("match_document_chunks", {
@@ -44,4 +44,14 @@ export async function searchSimilarChunks(
 
 function formatVector(values: number[]) {
   return `[${values.join(",")}]`;
+}
+
+function getDefaultMatchThreshold() {
+  const configuredThreshold = Number(process.env.RAG_MATCH_THRESHOLD);
+
+  if (Number.isFinite(configuredThreshold) && configuredThreshold > 0) {
+    return configuredThreshold;
+  }
+
+  return EMBEDDING_PROVIDER === "ollama" ? 0.55 : 0.75;
 }

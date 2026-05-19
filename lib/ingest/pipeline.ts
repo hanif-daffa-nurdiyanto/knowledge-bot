@@ -39,7 +39,11 @@ export async function processPdfDocument({
       throw new Error("PDF does not contain extractable text.");
     }
 
-    const embeddings = await embedTexts(chunks.map((chunk) => chunk.content));
+    const embeddings = await embedTexts(
+      chunks.map((chunk) => chunk.content),
+      32,
+      "passage"
+    );
 
     if (embeddings.length !== chunks.length) {
       throw new Error("Embedding count does not match chunk count.");

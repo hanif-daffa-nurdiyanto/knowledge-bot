@@ -1,6 +1,6 @@
 import { after } from "next/server";
 
-import { auth } from "@/auth";
+import { requireAdminApiSession } from "@/lib/auth/admin";
 import { processPdfDocument } from "@/lib/ingest/pipeline";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -10,12 +10,13 @@ export const maxDuration = 60;
 const MAX_FILE_SIZE_BYTES = 25 * 1024 * 1024;
 
 export async function POST(request: Request) {
-  const session = await auth();
+  const { session, response } = await requireAdminApiSession();
 
-  if (!session?.user) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  if (response) {
+    return response;
   }
 
+  const uploadedByEmail = session.user?.email;
   const formData = await request.formData();
   const file = formData.get("file");
 
@@ -53,7 +54,7 @@ export async function POST(request: Request) {
         file_name: file.name,
         file_size: file.size,
         mime_type: file.type || "application/pdf",
-        uploaded_by_email: session.user.email,
+        uploaded_by_email: uploadedByEmail,
       },
     })
     .select("id, name, status")
