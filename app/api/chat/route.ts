@@ -8,6 +8,11 @@ import {
   searchSimilarChunks,
 } from "@/lib/rag/search";
 import {
+  FILTER_LLM,
+  filterChunksWithLlm,
+  getRagCandidateCount,
+} from "@/lib/rag/filter";
+import {
   buildRagSystemPrompt,
   buildRagUserPrompt,
   formatSourceCards,
@@ -42,12 +47,21 @@ export async function POST(request: Request) {
 
   const threshold = body.threshold ?? DEFAULT_MATCH_THRESHOLD;
   const matchCount = body.matchCount ?? DEFAULT_MATCH_COUNT;
-  const chunks = await searchSimilarChunks(query, { matchCount, threshold });
+  const candidateCount = getRagCandidateCount(matchCount);
+  const candidateChunks = await searchSimilarChunks(query, {
+    matchCount: candidateCount,
+    threshold,
+  });
+  const chunks = (
+    await filterChunksWithLlm(query, candidateChunks)
+  ).slice(0, matchCount);
   const sourceCards = formatSourceCards(chunks);
   const headers = {
     "x-rag-source-count": String(sourceCards.length),
     "x-rag-sources": encodeURIComponent(JSON.stringify(sourceCards)),
     "x-rag-threshold": String(threshold),
+    "x-rag-candidate-count": String(candidateChunks.length),
+    "x-rag-filter-llm": FILTER_LLM,
     "x-rag-chat-provider": CHAT_PROVIDER,
     "x-rag-chat-model": CHAT_MODEL,
   };

@@ -4,15 +4,18 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   BookOpenText,
   Bot,
+  Check,
   Loader2,
   LogOut,
   Menu,
   MessageSquareText,
   PanelLeftClose,
   PanelLeftOpen,
+  Pencil,
   Plus,
   Send,
   Square,
+  Trash2,
   UserRound,
   X,
 } from "lucide-react";
@@ -88,6 +91,7 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
   const endRef = useRef<HTMLDivElement | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
   const pendingQuestionScrollIdRef = useRef<string | null>(null);
+  const questionAnchorMessageIdRef = useRef<string | null>(null);
   const { addToast, dismissToast, toasts } = useToasts();
 
   const activeConversation = useMemo(
@@ -149,15 +153,19 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
   }, [activeConversationId]);
 
   useEffect(() => {
-    const messageId = pendingQuestionScrollIdRef.current;
+    const pendingMessageId = pendingQuestionScrollIdRef.current;
+    const messageId = pendingMessageId ?? questionAnchorMessageIdRef.current;
 
     if (!messageId) {
       return;
     }
 
-    scrollMessageToTop(messageId, "smooth");
-    pendingQuestionScrollIdRef.current = null;
-  }, [activeConversation?.messages]);
+    scrollMessageToTop(messageId, pendingMessageId ? "smooth" : "auto");
+
+    if (pendingMessageId) {
+      pendingQuestionScrollIdRef.current = null;
+    }
+  }, [activeConversation?.messages, isStreaming]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -238,6 +246,7 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
     setInput("");
     setIsStreaming(true);
     pendingQuestionScrollIdRef.current = userMessage.id;
+    questionAnchorMessageIdRef.current = userMessage.id;
     updateConversation(conversationId, (conversation) => ({
       ...conversation,
       title,
@@ -339,6 +348,7 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
       });
     } finally {
       abortRef.current = null;
+      questionAnchorMessageIdRef.current = null;
       setIsStreaming(false);
     }
   }
@@ -368,22 +378,27 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
     behavior: ScrollBehavior = "smooth"
   ) {
     window.requestAnimationFrame(() => {
-      const scrollArea = scrollAreaRef.current;
-      const messageElement = scrollArea?.querySelector<HTMLElement>(
-        `[data-message-id="${messageId}"]`
-      );
+      window.requestAnimationFrame(() => {
+        const scrollArea = scrollAreaRef.current;
+        const messageElement = scrollArea?.querySelector<HTMLElement>(
+          `[data-message-id="${messageId}"]`
+        );
 
-      if (!scrollArea || !messageElement) {
-        return;
-      }
+        if (!scrollArea || !messageElement) {
+          return;
+        }
 
-      const scrollAreaTop = scrollArea.getBoundingClientRect().top;
-      const messageTop = messageElement.getBoundingClientRect().top;
-      const topPadding = 24;
+        const scrollAreaTop = scrollArea.getBoundingClientRect().top;
+        const messageTop = messageElement.getBoundingClientRect().top;
+        const topPadding = 24;
+        const targetTop =
+          scrollArea.scrollTop + messageTop - scrollAreaTop - topPadding;
+        const maxTop = scrollArea.scrollHeight - scrollArea.clientHeight;
 
-      scrollArea.scrollTo({
-        top: scrollArea.scrollTop + messageTop - scrollAreaTop - topPadding,
-        behavior,
+        scrollArea.scrollTo({
+          top: Math.min(Math.max(targetTop, 0), Math.max(maxTop, 0)),
+          behavior,
+        });
       });
     });
   }
@@ -433,6 +448,103 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
     setActiveConversationId(persistedConversation.id);
 
     return persistedConversation.id;
+  }
+
+  async function renameConversation(conversationId: string, title: string) {
+    const nextTitle = title.trim();
+
+    if (!nextTitle) {
+      return;
+    }
+
+    const previousConversations = conversations;
+    setConversations((current) =>
+      current.map((conversation) =>
+        conversation.id === conversationId
+          ? { ...conversation, title: nextTitle }
+          : conversation
+      )
+    );
+
+    if (conversationId.startsWith("local-")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/chat/conversations/${conversationId}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ title: nextTitle }),
+      });
+
+      if (!response.ok) {
+        const error = await readError(response);
+        throw new Error(error);
+      }
+    } catch (error) {
+      setConversations(previousConversations);
+      addToast({
+        type: "error",
+        title: "Gagal mengubah nama history",
+        description:
+          error instanceof Error ? error.message : "Failed to rename history.",
+      });
+    }
+  }
+
+  async function deleteConversation(conversationId: string) {
+    const conversation = conversations.find((item) => item.id === conversationId);
+
+    if (!conversation) {
+      return;
+    }
+
+    if (isStreaming && activeConversationId === conversationId) {
+      addToast({
+        type: "info",
+        title: "Streaming masih berjalan",
+        description: "Stop streaming sebelum menghapus history aktif.",
+      });
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Hapus history "${conversation.title}" beserta semua pesannya?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      if (!conversationId.startsWith("local-")) {
+        const response = await fetch(`/api/chat/conversations/${conversationId}`, {
+          method: "DELETE",
+        });
+
+        if (!response.ok) {
+          const error = await readError(response);
+          throw new Error(error);
+        }
+      }
+
+      const remaining = conversations.filter((item) => item.id !== conversationId);
+      const nextConversations =
+        remaining.length > 0 ? remaining : [createConversation()];
+
+      setConversations(nextConversations);
+
+      if (activeConversationId === conversationId) {
+        setActiveConversationId(nextConversations[0].id);
+      }
+    } catch (error) {
+      addToast({
+        type: "error",
+        title: "Gagal menghapus history",
+        description:
+          error instanceof Error ? error.message : "Failed to delete history.",
+      });
+    }
   }
 
   async function saveMessage(
@@ -554,7 +666,9 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
               conversations={conversations}
               isLoadingHistory={isLoadingHistory}
               onCloseSidebar={() => setIsDesktopSidebarOpen(false)}
+              onDeleteConversation={deleteConversation}
               onNewConversation={startNewConversation}
+              onRenameConversation={renameConversation}
               onSelectConversation={(id) => setActiveConversationId(id)}
             />
           </aside>
@@ -584,7 +698,9 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
                   conversations={conversations}
                   isLoadingHistory={isLoadingHistory}
                   onCloseSidebar={() => setIsSidebarOpen(false)}
+                  onDeleteConversation={deleteConversation}
                   onNewConversation={startNewConversation}
+                  onRenameConversation={renameConversation}
                   onSelectConversation={(id) => {
                     setActiveConversationId(id);
                     setIsSidebarOpen(false);
@@ -620,13 +736,13 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
                       }
                     }}
                     rows={3}
-                    placeholder="Tanya kebijakan, SOP, atau isi dokumen internal..."
+                    placeholder="Ask about policies, SOPs, and other internal regulations..."
                     className="max-h-40 min-h-20 w-full resize-none bg-transparent px-3 py-2 text-sm leading-6 outline-none placeholder:text-muted-foreground"
                     disabled={isStreaming}
                   />
                   <div className="flex items-center justify-between gap-3 px-2 pb-1">
                     <p className="text-xs text-muted-foreground">
-                      Enter kirim, Shift+Enter baris baru, Ctrl/Cmd+K chat baru
+                      Press Enter to send, Shift+Enter for a new line, Ctrl/Cmd+K for a new chat
                     </p>
                     {isStreaming ? (
                       <Button type="button" variant="outline" onClick={stopStreaming}>
@@ -659,16 +775,44 @@ function SidebarContent({
   conversations,
   isLoadingHistory,
   onCloseSidebar,
+  onDeleteConversation,
   onNewConversation,
+  onRenameConversation,
   onSelectConversation,
 }: {
   activeConversationId: string;
   conversations: Conversation[];
   isLoadingHistory: boolean;
   onCloseSidebar: () => void;
+  onDeleteConversation: (id: string) => void;
   onNewConversation: () => void;
+  onRenameConversation: (id: string, title: string) => void;
   onSelectConversation: (id: string) => void;
 }) {
+  const [editingConversationId, setEditingConversationId] = useState<string | null>(
+    null
+  );
+  const [editingTitle, setEditingTitle] = useState("");
+
+  function startEditing(conversation: Conversation) {
+    setEditingConversationId(conversation.id);
+    setEditingTitle(conversation.title);
+  }
+
+  function cancelEditing() {
+    setEditingConversationId(null);
+    setEditingTitle("");
+  }
+
+  function submitEditing() {
+    if (!editingConversationId) {
+      return;
+    }
+
+    onRenameConversation(editingConversationId, editingTitle);
+    cancelEditing();
+  }
+
   return (
     <>
       <div className="border-b px-4 py-4">
@@ -704,12 +848,10 @@ function SidebarContent({
         ) :
           <div className="space-y-1">
             {conversations.map((conversation) => (
-              <button
+              <div
                 key={conversation.id}
-                type="button"
-                onClick={() => onSelectConversation(conversation.id)}
                 className={cn(
-                  "flex w-full items-start gap-3 rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                  "group flex w-full items-start gap-2 rounded-md px-2 py-2 text-left text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                   conversation.id === activeConversationId &&
                   "bg-sidebar-accent text-sidebar-accent-foreground"
                 )}
@@ -718,15 +860,82 @@ function SidebarContent({
                   className="mt-0.5 size-4 shrink-0 text-muted-foreground"
                   aria-hidden="true"
                 />
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate font-medium">
-                    {conversation.title}
-                  </span>
-                  <span className="block text-xs text-muted-foreground">
-                    {conversation.createdAtLabel}
-                  </span>
-                </span>
-              </button>
+                {editingConversationId === conversation.id ? (
+                  <form
+                    className="min-w-0 flex-1"
+                    onSubmit={(event) => {
+                      event.preventDefault();
+                      submitEditing();
+                    }}
+                  >
+                    <input
+                      autoFocus
+                      value={editingTitle}
+                      onChange={(event) => setEditingTitle(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Escape") {
+                          cancelEditing();
+                        }
+                      }}
+                      className="h-7 w-full rounded-md border bg-background px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/40"
+                    />
+                    <div className="mt-1 flex items-center gap-1">
+                      <Button
+                        type="submit"
+                        variant="ghost"
+                        size="icon-xs"
+                        aria-label="Save history name"
+                      >
+                        <Check className="size-3.5" aria-hidden="true" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xs"
+                        onClick={cancelEditing}
+                        aria-label="Cancel rename"
+                      >
+                        <X className="size-3.5" aria-hidden="true" />
+                      </Button>
+                    </div>
+                  </form>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => onSelectConversation(conversation.id)}
+                      className="min-w-0 flex-1 text-left"
+                    >
+                      <span className="block truncate font-medium">
+                        {conversation.title}
+                      </span>
+                      <span className="block text-xs text-muted-foreground">
+                        {conversation.createdAtLabel}
+                      </span>
+                    </button>
+                    <div className="flex shrink-0 items-center gap-1 opacity-100 md:opacity-0 md:transition-opacity md:group-hover:opacity-100 md:group-focus-within:opacity-100">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xs"
+                        onClick={() => startEditing(conversation)}
+                        aria-label="Rename history"
+                      >
+                        <Pencil className="size-3.5" aria-hidden="true" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-xs"
+                        onClick={() => onDeleteConversation(conversation.id)}
+                        aria-label="Delete history"
+                      >
+                        <Trash2 className="size-3.5" aria-hidden="true" />
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </div>
             ))}
           </div>
         }
