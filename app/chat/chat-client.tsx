@@ -5,12 +5,15 @@ import {
   BookOpenText,
   Bot,
   Check,
+  ExternalLink,
+  FileSearch,
   Loader2,
   LogOut,
   Menu,
   MessageSquareText,
   PanelLeftClose,
   PanelLeftOpen,
+  PanelRightClose,
   Pencil,
   Plus,
   Send,
@@ -66,6 +69,26 @@ type PersistedConversation = {
   }>;
 };
 
+type DocumentPreview = {
+  document: {
+    id: string;
+    name: string;
+    source_type: "pdf" | "notion";
+    source_url: string | null;
+    storage_path: string | null;
+    metadata: Record<string, unknown>;
+    preview_url: string | null;
+  };
+  selected_chunk: PreviewChunk;
+  nearby_chunks: PreviewChunk[];
+};
+
+type PreviewChunk = {
+  chunk_index: number;
+  page_number: number | null;
+  content: string;
+};
+
 const welcomeMessage: ChatMessage = {
   id: "welcome",
   role: "assistant",
@@ -87,6 +110,13 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
   const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const [isStreaming, setIsStreaming] = useState(false);
+  const [selectedSource, setSelectedSource] = useState<SourceCardData | null>(
+    null
+  );
+  const [documentPreview, setDocumentPreview] = useState<DocumentPreview | null>(
+    null
+  );
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const endRef = useRef<HTMLDivElement | null>(null);
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
@@ -101,6 +131,19 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
       ) ?? conversations[0],
     [activeConversationId, conversations]
   );
+
+  const activeSelectedSource = useMemo(() => {
+    if (!selectedSource || !activeConversation) {
+      return null;
+    }
+
+    const selectedKey = sourceKey(selectedSource);
+    const hasSource = activeConversation.messages.some((message) =>
+      message.sources.some((source) => sourceKey(source) === selectedKey)
+    );
+
+    return hasSource ? selectedSource : null;
+  }, [activeConversation, selectedSource]);
 
   const loadConversations = useCallback(async () => {
     setIsLoadingHistory(true);
@@ -600,6 +643,42 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
     }));
   }
 
+  async function selectSource(source: SourceCardData) {
+    setSelectedSource(source);
+    setDocumentPreview(null);
+    setIsLoadingPreview(true);
+
+    try {
+      const params = new URLSearchParams({
+        chunkIndex: String(source.chunk_index),
+      });
+      const response = await fetch(
+        `/api/chat/documents/${source.document_id}/preview?${params}`,
+        { cache: "no-store" }
+      );
+      const data = (await response.json()) as DocumentPreview & {
+        error?: string;
+      };
+
+      if (!response.ok) {
+        throw new Error(data.error ?? "Failed to load document preview.");
+      }
+
+      setDocumentPreview(data);
+    } catch (error) {
+      addToast({
+        type: "error",
+        title: "Gagal memuat preview",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to load document preview.",
+      });
+    } finally {
+      setIsLoadingPreview(false);
+    }
+  }
+
   return (
     <main className="flex h-dvh overflow-hidden bg-background text-foreground">
       <ToastViewport dismissToast={dismissToast} toasts={toasts} />
@@ -717,7 +796,12 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
             >
               <div className="mx-auto flex max-w-3xl flex-col gap-5">
                 {activeConversation?.messages.map((message) => (
-                  <ChatBubble key={message.id} message={message} />
+                  <ChatBubble
+                    key={message.id}
+                    message={message}
+                    selectedSource={activeSelectedSource}
+                    onSelectSource={selectSource}
+                  />
                 ))}
                 <div ref={endRef} />
               </div>
@@ -764,6 +848,18 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
               </div>
             </div>
           </section>
+
+          {activeSelectedSource ? (
+            <DocumentPreviewPanel
+              isLoading={isLoadingPreview}
+              preview={documentPreview}
+              source={activeSelectedSource}
+              onClose={() => {
+                setSelectedSource(null);
+                setDocumentPreview(null);
+              }}
+            />
+          ) : null}
         </div>
       </div>
     </main>
@@ -944,7 +1040,15 @@ function SidebarContent({
   );
 }
 
-function ChatBubble({ message }: { message: ChatMessage }) {
+function ChatBubble({
+  message,
+  selectedSource,
+  onSelectSource,
+}: {
+  message: ChatMessage;
+  selectedSource: SourceCardData | null;
+  onSelectSource: (source: SourceCardData) => void;
+}) {
   const isUser = message.role === "user";
 
   return (
@@ -997,7 +1101,13 @@ function ChatBubble({ message }: { message: ChatMessage }) {
         {message.role === "assistant" && message.sources.length > 0 ? (
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {message.sources.map((source) => (
-              <SourceCard key={source.id} source={source} compact />
+              <SourceCard
+                key={source.id}
+                source={source}
+                compact
+                isActive={sourceKey(source) === sourceKey(selectedSource)}
+                onClick={onSelectSource}
+              />
             ))}
           </div>
         ) : null}
@@ -1008,6 +1118,136 @@ function ChatBubble({ message }: { message: ChatMessage }) {
       </div>
     </div>
   );
+}
+
+function DocumentPreviewPanel({
+  isLoading,
+  preview,
+  source,
+  onClose,
+}: {
+  isLoading: boolean;
+  preview: DocumentPreview | null;
+  source: SourceCardData;
+  onClose: () => void;
+}) {
+  const previewUrl = preview?.document.preview_url ?? null;
+  const chunks = preview?.nearby_chunks ?? [];
+
+  return (
+    <>
+      <button
+        type="button"
+        aria-label="Close document preview"
+        className="fixed inset-0 z-40 bg-background/70 backdrop-blur-sm md:hidden"
+        onClick={onClose}
+      />
+      <aside className="fixed inset-x-3 bottom-4 top-20 z-50 flex flex-col overflow-hidden rounded-lg border bg-background shadow-xl md:relative md:inset-auto md:z-auto md:w-[28rem] md:shrink-0 md:rounded-none md:border-y-0 md:border-r-0 md:shadow-none">
+      <div className="flex h-16 shrink-0 items-center justify-between border-b px-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+            <FileSearch className="size-5" aria-hidden="true" />
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold">
+              {preview?.document.name ?? source.document_name}
+            </p>
+            <p className="truncate text-xs text-muted-foreground">
+              {source.page_number ? `Page ${source.page_number}` : "No page"} -
+              Chunk {source.chunk_index}
+            </p>
+          </div>
+        </div>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={onClose}
+          aria-label="Close document preview"
+        >
+          <PanelRightClose className="size-5" aria-hidden="true" />
+        </Button>
+      </div>
+
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        {isLoading ? (
+          <div className="flex h-full items-center justify-center gap-2 text-sm text-muted-foreground">
+            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+            Loading preview...
+          </div>
+        ) : (
+          <div className="flex min-h-full flex-col">
+            {previewUrl ? (
+              <div className="h-[42dvh] min-h-56 border-b bg-muted md:h-[52dvh] md:min-h-80">
+                <iframe
+                  title={`Preview ${preview?.document.name ?? source.document_name}`}
+                  src={previewUrl}
+                  className="h-full w-full"
+                />
+              </div>
+            ) : (
+              null
+            )}
+
+            <div className="space-y-4 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <h2 className="text-sm font-semibold">Source Context</h2>
+                {previewUrl ? (
+                  <Button type="button" variant="outline" size="sm" asChild>
+                    <a href={previewUrl} target="_blank" rel="noreferrer">
+                      <ExternalLink className="size-3.5" aria-hidden="true" />
+                      Open
+                    </a>
+                  </Button>
+                ) : null}
+              </div>
+
+              {chunks.length > 0 ? (
+                <div className="space-y-3">
+                  {chunks.map((chunk) => (
+                    <div
+                      key={chunk.chunk_index}
+                      className={cn(
+                        "rounded-md border p-3",
+                        chunk.chunk_index === source.chunk_index
+                          ? "border-primary bg-primary/5"
+                          : "bg-card"
+                      )}
+                    >
+                      <div className="mb-2 flex flex-wrap gap-x-3 gap-y-1 text-xs font-medium text-muted-foreground">
+                        <span>Chunk {chunk.chunk_index}</span>
+                        <span>
+                          {chunk.page_number
+                            ? `Page ${chunk.page_number}`
+                            : "No page"}
+                        </span>
+                      </div>
+                      <p className="whitespace-pre-wrap text-sm leading-6">
+                        {chunk.content}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Tidak ada teks preview untuk source ini.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+      </aside>
+    </>
+  );
+}
+
+function sourceKey(source: SourceCardData | null) {
+  if (!source) {
+    return "";
+  }
+
+  return `${source.document_id}:${source.chunk_index}`;
 }
 
 function createConversation(id = crypto.randomUUID()): Conversation {

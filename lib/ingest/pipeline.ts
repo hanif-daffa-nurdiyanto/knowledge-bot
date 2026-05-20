@@ -1,6 +1,7 @@
 import "server-only";
 
 import {
+  EMBEDDING_DIMENSIONS,
   EMBEDDING_PROVIDER,
   EMBEDDING_MODEL,
   embedTexts,
@@ -68,6 +69,7 @@ export async function processPdfDocument({
             file_name: fileName,
             embedding_provider: EMBEDDING_PROVIDER,
             embedding_model: EMBEDDING_MODEL,
+            embedding_dimensions: EMBEDDING_DIMENSIONS,
           },
         };
       });
@@ -92,6 +94,7 @@ export async function processPdfDocument({
           chunk_overlap: CHUNK_OVERLAP,
           embedding_provider: EMBEDDING_PROVIDER,
           embedding_model: EMBEDDING_MODEL,
+          embedding_dimensions: EMBEDDING_DIMENSIONS,
         },
       })
       .eq("id", documentId);

@@ -14,15 +14,27 @@ export type SourceCardData = {
 type SourceCardProps = {
   source: SourceCardData;
   compact?: boolean;
+  isActive?: boolean;
+  onClick?: (source: SourceCardData) => void;
 };
 
-export function SourceCard({ source, compact }: SourceCardProps) {
+export function SourceCard({
+  source,
+  compact,
+  isActive,
+  onClick,
+}: SourceCardProps) {
   const confidence = Math.round(source.similarity * 100);
+  const Component = onClick ? "button" : "div";
 
   return (
-    <div
+    <Component
+      type={onClick ? "button" : undefined}
+      onClick={onClick ? () => onClick(source) : undefined}
       className={cn(
-        "rounded-md border bg-card p-3 text-card-foreground shadow-xs",
+        "w-full rounded-md border bg-card p-3 text-left text-card-foreground shadow-xs transition-colors",
+        onClick && "cursor-pointer hover:border-primary/50 hover:bg-muted/40",
+        isActive && "border-primary bg-primary/5",
         compact && "p-2.5"
       )}
     >
@@ -46,6 +58,6 @@ export function SourceCard({ source, compact }: SourceCardProps) {
           </div>
         </div>
       </div>
-    </div>
+    </Component>
   );
 }
