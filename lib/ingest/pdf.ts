@@ -1,5 +1,8 @@
 import "server-only";
 
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+
 import type { TextPage } from "@/lib/ingest/chunk-text";
 
 type PdfParseModule = typeof import("pdf-parse");
@@ -7,6 +10,7 @@ type PdfParseModule = typeof import("pdf-parse");
 export async function parsePdfToPages(data: Buffer): Promise<TextPage[]> {
   ensurePdfJsDomPolyfills();
   const { PDFParse } = (await import("pdf-parse")) as PdfParseModule;
+  PDFParse.setWorker(getPdfWorkerUrl());
   const parser = new PDFParse({ data });
 
   try {
@@ -19,6 +23,10 @@ export async function parsePdfToPages(data: Buffer): Promise<TextPage[]> {
   } finally {
     await parser.destroy();
   }
+}
+
+function getPdfWorkerUrl() {
+  return pathToFileURL(path.join(process.cwd(), "public", "pdf.worker.mjs")).href;
 }
 
 function ensurePdfJsDomPolyfills() {
