@@ -8,7 +8,7 @@ import {
 } from "@/lib/ai/embeddings";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-export const DEFAULT_MATCH_COUNT = 5;
+export const DEFAULT_MATCH_COUNT = getDefaultMatchCount();
 export const DEFAULT_MATCH_THRESHOLD = getDefaultMatchThreshold();
 
 export type SourceChunk = {
@@ -163,6 +163,19 @@ function vectorNorm(values: number[]) {
   return Math.sqrt(
     values.reduce((sum, value) => sum + value * value, 0)
   );
+}
+
+function getDefaultMatchCount() {
+  const configuredMatchCount = Number(process.env.MATCH_COUNT);
+
+  if (
+    Number.isInteger(configuredMatchCount) &&
+    configuredMatchCount > 0
+  ) {
+    return configuredMatchCount;
+  }
+
+  return 5;
 }
 
 function getDefaultMatchThreshold() {
