@@ -106,7 +106,7 @@ export function AdminDocumentsClient({
     } catch (error) {
       addToast({
         type: "error",
-        title: "Gagal memuat dokumen",
+        title: "Failed to load documents",
         description:
           error instanceof Error ? error.message : "Failed to load documents.",
       });
@@ -145,27 +145,27 @@ export function AdminDocumentsClient({
     if (!isPdf(nextFile)) {
       addToast({
         type: "error",
-        title: "File ditolak",
-        description: "File harus PDF.",
+        title: "File rejected",
+        description: "File must be a PDF.",
       });
-      setNotice({ type: "error", message: "File harus PDF." });
+      setNotice({ type: "error", message: "File must be a PDF." });
       return;
     }
 
     if (nextFile.size > maxFileSizeBytes) {
       addToast({
         type: "error",
-        title: "File terlalu besar",
-        description: "Maksimum ukuran PDF adalah 25MB.",
+        title: "File too large",
+        description: "Maximum PDF size is 25MB.",
       });
-      setNotice({ type: "error", message: "Maksimum ukuran PDF adalah 25MB." });
+      setNotice({ type: "error", message: "Maximum PDF size is 25MB." });
       return;
     }
 
     setFile(nextFile);
     addToast({
       type: "info",
-      title: "PDF siap diupload",
+      title: "PDF ready to upload",
       description: `${nextFile.name} (${formatFileSize(nextFile.size)})`,
     });
   }
@@ -176,10 +176,10 @@ export function AdminDocumentsClient({
     if (!file) {
       addToast({
         type: "error",
-        title: "PDF belum dipilih",
-        description: "Pilih atau drag PDF terlebih dulu.",
+        title: "No PDF selected",
+        description: "Select or drag a PDF first.",
       });
-      setNotice({ type: "error", message: "Pilih atau drag PDF terlebih dulu." });
+      setNotice({ type: "error", message: "Select or drag a PDF first." });
       return;
     }
 
@@ -197,29 +197,29 @@ export function AdminDocumentsClient({
       const data = (await response.json()) as UploadResponse;
 
       if (!response.ok) {
-        throw new Error(data.error ?? "Upload gagal.");
+        throw new Error(data.error ?? "Upload failed.");
       }
 
       // setNotice({
       //   type: "success",
-      //   message: `${data.name ?? file.name} diterima dan sedang diproses.`,
+      //   message: `${data.name ?? file.name} was accepted and is being processed.`,
       // });
       addToast({
         type: "success",
-        title: "Upload diterima",
-        description: `${data.name ?? file.name} sedang diproses.`,
+        title: "Upload accepted",
+        description: `${data.name ?? file.name} is being processed.`,
       });
       setFile(null);
       await loadDocuments();
     } catch (error) {
       addToast({
         type: "error",
-        title: "Upload gagal",
-        description: error instanceof Error ? error.message : "Upload gagal.",
+        title: "Upload failed",
+        description: error instanceof Error ? error.message : "Upload failed.",
       });
       setNotice({
         type: "error",
-        message: error instanceof Error ? error.message : "Upload gagal.",
+        message: error instanceof Error ? error.message : "Upload failed.",
       });
     } finally {
       setIsUploading(false);
@@ -231,13 +231,13 @@ export function AdminDocumentsClient({
 
     addToast({
       type: "info",
-      title: "Notion belum aktif",
-      description: "Input URL sudah ada, tetapi ingestion Notion masih hold.",
+      title: "Notion is not active yet",
+      description: "The URL input exists, but Notion ingestion is still on hold.",
     });
     setNotice({
       type: "info",
       message:
-        "Input Notion URL sudah disiapkan. Ingestion Notion masih hold sesuai keputusan sebelumnya.",
+        "The Notion URL input is prepared. Notion ingestion is still on hold based on the previous decision.",
     });
   }
 
@@ -256,34 +256,34 @@ export function AdminDocumentsClient({
       };
 
       if (!response.ok) {
-        throw new Error(data.error ?? "Seed demo dokumen gagal.");
+        throw new Error(data.error ?? "Failed to seed demo documents.");
       }
 
       const seededCount = data.seeded?.length ?? 0;
       const skippedCount = data.skipped?.length ?? 0;
-      const message = `${seededCount} dokumen dibuat, ${skippedCount} dilewati.`;
+      const message = `${seededCount} documents created, ${skippedCount} skipped.`;
 
       // setNotice({
       //   type: "success",
-      //   message: `Seed demo dokumen diproses. ${message}`,
+      //   message: `Demo document seed started. ${message}`,
       // });
       addToast({
         type: "success",
-        title: "Seed demo dimulai",
+        title: "Demo seed started",
         description: message,
       });
       await loadDocuments();
     } catch (error) {
       addToast({
         type: "error",
-        title: "Seed gagal",
+        title: "Seed failed",
         description:
-          error instanceof Error ? error.message : "Seed demo dokumen gagal.",
+          error instanceof Error ? error.message : "Failed to seed demo documents.",
       });
       setNotice({
         type: "error",
         message:
-          error instanceof Error ? error.message : "Seed demo dokumen gagal.",
+          error instanceof Error ? error.message : "Failed to seed demo documents.",
       });
     } finally {
       setIsSeeding(false);
@@ -293,7 +293,7 @@ export function AdminDocumentsClient({
   async function deleteDocument(documentId: string) {
     const document = documents.find((item) => item.id === documentId);
     const confirmed = window.confirm(
-      `Hapus "${document?.name ?? "document"}" beserta semua chunks?`
+      `Delete "${document?.name ?? "document"}" and all of its chunks?`
     );
 
     if (!confirmed) {
@@ -310,7 +310,7 @@ export function AdminDocumentsClient({
       const data = (await response.json()) as { error?: string };
 
       if (!response.ok) {
-        throw new Error(data.error ?? "Delete gagal.");
+        throw new Error(data.error ?? "Delete failed.");
       }
 
       setDocuments((current) =>
@@ -318,22 +318,22 @@ export function AdminDocumentsClient({
       );
       // setNotice({
       //   type: "success",
-      //   message: "Dokumen dihapus. Chunks ikut terhapus via cascade.",
+      //   message: "Document deleted. Chunks were deleted by cascade.",
       // });
       addToast({
         type: "success",
-        title: "Dokumen dihapus",
-        description: "Chunks ikut terhapus via cascade.",
+        title: "Document deleted",
+        description: "Chunks were deleted by cascade.",
       });
     } catch (error) {
       addToast({
         type: "error",
-        title: "Delete gagal",
-        description: error instanceof Error ? error.message : "Delete gagal.",
+        title: "Delete failed",
+        description: error instanceof Error ? error.message : "Delete failed.",
       });
       setNotice({
         type: "error",
-        message: error instanceof Error ? error.message : "Delete gagal.",
+        message: error instanceof Error ? error.message : "Delete failed.",
       });
     } finally {
       setDeletingDocumentId(null);
@@ -385,7 +385,8 @@ export function AdminDocumentsClient({
             <div className="mb-4">
               <h1 className="text-lg font-semibold">Upload PDF</h1>
               <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                Drag-drop atau pilih PDF. Status akan muncul di daftar dokumen.
+                Drag and drop or select a PDF. Status will appear in the
+                document list.
               </p>
             </div>
 
@@ -471,7 +472,7 @@ export function AdminDocumentsClient({
             <div className="mb-4">
               <h2 className="text-lg font-semibold">Notion URL</h2>
               <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                Field disiapkan untuk TASK-23. Pipeline Notion masih hold.
+                Field prepared for TASK-23. The Notion pipeline is still on hold.
               </p>
             </div>
             <div className="flex items-center gap-2 rounded-lg border bg-background px-3 py-2">
@@ -503,7 +504,7 @@ export function AdminDocumentsClient({
             <div className="mb-4">
               <h2 className="text-lg font-semibold">Seed Demo</h2>
               <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                Masukkan SOP, HR, dan prosedur IT dummy dari{" "}
+                Add the dummy SOP, HR, and IT procedure documents from{" "}
                 <code>public/document</code>.
               </p>
             </div>
@@ -529,7 +530,7 @@ export function AdminDocumentsClient({
             <div>
               <h2 className="text-lg font-semibold">Documents</h2>
               <p className="text-sm text-muted-foreground">
-                Polling aktif saat ada dokumen processing.
+                Polling is active while any document is processing.
               </p>
             </div>
             <Button
@@ -564,9 +565,9 @@ export function AdminDocumentsClient({
                   className="mx-auto mb-3 size-8 text-muted-foreground"
                   aria-hidden="true"
                 />
-                <p className="font-medium">Belum ada dokumen</p>
+                <p className="font-medium">No documents yet</p>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Upload PDF pertama untuk mulai ingestion.
+                  Upload the first PDF to start ingestion.
                 </p>
               </div>
             ) : null}

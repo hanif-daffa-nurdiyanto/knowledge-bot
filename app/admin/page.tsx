@@ -24,8 +24,8 @@ export default async function AdminPage() {
           </div>
           <h1 className="text-xl font-semibold">Admin access required</h1>
           <p className="mt-3 text-sm leading-6 text-muted-foreground">
-            Akun ini sudah login, tapi belum terdaftar sebagai admin. Tambahkan
-            email ke <code>ADMIN_EMAILS</code> atau domain ke{" "}
+            This account is signed in but is not registered as an admin. Add
+            the email to <code>ADMIN_EMAILS</code> or the domain to{" "}
             <code>ADMIN_EMAIL_DOMAIN</code>.
           </p>
           <Button asChild className="mt-6">

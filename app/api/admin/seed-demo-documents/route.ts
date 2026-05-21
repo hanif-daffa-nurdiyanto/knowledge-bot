@@ -17,7 +17,7 @@ const demoDocuments = [
   },
   {
     fileName: "Dokumen_HR.pdf",
-    title: "Dokumen HR",
+    title: "HR Document",
   },
   {
     fileName: "Prosedur_IT_Perusahaan.pdf",

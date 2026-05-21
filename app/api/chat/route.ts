@@ -69,9 +69,9 @@ export async function POST(request: Request) {
   if (chunks.length === 0) {
     return createTextStreamResponse(
       [
-        "Saya tidak menemukan informasi yang cukup di knowledge base untuk menjawab pertanyaan itu.",
+        "I could not find enough information in the knowledge base to answer that question.",
         "",
-        "Silakan hubungi HR/IT atau upload dokumen yang relevan ke knowledge base.",
+        "Please contact HR/IT or upload the relevant document to the knowledge base.",
       ].join("\n"),
       { headers }
     );

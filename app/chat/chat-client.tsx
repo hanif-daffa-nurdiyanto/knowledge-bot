@@ -93,7 +93,7 @@ const welcomeMessage: ChatMessage = {
   id: "welcome",
   role: "assistant",
   content:
-    "Halo. Tanya apa pun dari dokumen internal yang sudah di-ingest ke knowledge base.",
+    "Hi. Ask anything from the internal documents that have been ingested into the knowledge base.",
   sources: [],
   status: "done",
 };
@@ -177,7 +177,7 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
     } catch (error) {
       addToast({
         type: "error",
-        title: "Gagal memuat riwayat",
+        title: "Failed to load history",
         description:
           error instanceof Error ? error.message : "Failed to load chat history.",
       });
@@ -263,7 +263,7 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
     } catch (error) {
       addToast({
         type: "error",
-        title: "Gagal membuat history",
+        title: "Failed to create history",
         description:
           error instanceof Error ? error.message : "Failed to create history.",
       });
@@ -368,14 +368,14 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
       const description =
         error instanceof Error ? error.message : "Unknown error";
       const message = isAbortError
-        ? "\n\nStreaming dihentikan."
-        : `Gagal mengambil jawaban: ${description}`;
+        ? "\n\nStreaming stopped."
+        : `Failed to fetch answer: ${description}`;
 
       addToast({
         type: isAbortError ? "info" : "error",
-        title: isAbortError ? "Streaming dihentikan" : "Chat gagal",
+        title: isAbortError ? "Streaming stopped" : "Chat failed",
         description: isAbortError
-          ? "Response terakhir disimpan sampai titik penghentian."
+          ? "The latest response was saved up to the stopping point."
           : description,
       });
 
@@ -528,7 +528,7 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
       setConversations(previousConversations);
       addToast({
         type: "error",
-        title: "Gagal mengubah nama history",
+        title: "Failed to rename history",
         description:
           error instanceof Error ? error.message : "Failed to rename history.",
       });
@@ -545,14 +545,14 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
     if (isStreaming && activeConversationId === conversationId) {
       addToast({
         type: "info",
-        title: "Streaming masih berjalan",
-        description: "Stop streaming sebelum menghapus history aktif.",
+        title: "Streaming is still running",
+        description: "Stop streaming before deleting the active history.",
       });
       return;
     }
 
     const confirmed = window.confirm(
-      `Hapus history "${conversation.title}" beserta semua pesannya?`
+      `Delete history "${conversation.title}" and all of its messages?`
     );
 
     if (!confirmed) {
@@ -583,7 +583,7 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
     } catch (error) {
       addToast({
         type: "error",
-        title: "Gagal menghapus history",
+        title: "Failed to delete history",
         description:
           error instanceof Error ? error.message : "Failed to delete history.",
       });
@@ -613,7 +613,7 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
       const error = await readError(response);
       addToast({
         type: "error",
-        title: "Gagal menyimpan history",
+        title: "Failed to save history",
         description: error,
       });
     }
@@ -668,7 +668,7 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
     } catch (error) {
       addToast({
         type: "error",
-        title: "Gagal memuat preview",
+        title: "Failed to load preview",
         description:
           error instanceof Error
             ? error.message
@@ -1230,7 +1230,7 @@ function DocumentPreviewPanel({
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground">
-                  Tidak ada teks preview untuk source ini.
+                  No text preview is available for this source.
                 </p>
               )}
             </div>
