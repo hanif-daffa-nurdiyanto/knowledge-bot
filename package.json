@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "eval:rag:retrieval": "node scripts/eval-rag-retrieval.mjs",
+    "eval:rag:answer": "node scripts/eval-rag-answer.mjs"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.78",

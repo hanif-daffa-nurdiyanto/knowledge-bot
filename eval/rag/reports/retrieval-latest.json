@@ -1,0 +1,917 @@
+{
+  "generated_at": "2026-07-07T04:31:17.803Z",
+  "dataset": "eval/rag/questions.jsonl",
+  "environment": {
+    "embedding_provider": "nvidia",
+    "embedding_model": "nvidia/nv-embedqa-e5-v5",
+    "embedding_dimensions": 1024,
+    "match_count_env": "2",
+    "threshold_env": "0.25"
+  },
+  "configs": [
+    {
+      "matchCount": 2,
+      "threshold": 0.25,
+      "filterLlm": "OFF"
+    }
+  ],
+  "summary": [
+    {
+      "config": {
+        "matchCount": 2,
+        "threshold": 0.25,
+        "filterLlm": "OFF"
+      },
+      "total_cases": 15,
+      "answerable_cases": 12,
+      "negative_cases": 3,
+      "document_hit_rate": 1,
+      "source_hit_rate": 1,
+      "document_mrr": 0.9583333333333334,
+      "source_mrr": 0.9166666666666666,
+      "negative_false_positive_rate": 1,
+      "average_latency_ms": 739,
+      "average_retrieved_count": 2,
+      "failures": [
+        {
+          "id": "neg-001",
+          "question": "Berapa nominal tunjangan makan harian karyawan?",
+          "negative_false_positive": true,
+          "top_result": {
+            "rank": 1,
+            "id": "0e698fc6-ccab-47a8-a28b-e2af5460ce84",
+            "document_id": "cb64e900-81a3-4f8c-a00b-84ca31384817",
+            "document_name": "HR Document",
+            "page_number": 1,
+            "chunk_index": 0,
+            "similarity": 0.475834842953264,
+            "preview": "Dokumen HR (Human Resource) Kebijakan Karyawan Nomor Dokumen: HR-EMP-002 Divisi: Human Resource A. Rekrutmen 1. Kandidat wajib mengikuti proses screening. 2. Interview dilakukan minimal 2 tahap. 3. Hasil interview disimp..."
+          }
+        },
+        {
+          "id": "neg-002",
+          "question": "Apakah perusahaan menyediakan kebijakan kerja remote permanen?",
+          "negative_false_positive": true,
+          "top_result": {
+            "rank": 1,
+            "id": "169e508d-750f-456f-aa7c-7de40ea25ff5",
+            "document_id": "5477816a-6e5c-48d8-ad05-099fbc76f149",
+            "document_name": "SOP Operasional Harian",
+            "page_number": 1,
+            "chunk_index": 0,
+            "similarity": 0.446594519113224,
+            "preview": "SOP Operasional Harian PT Maju Digital Nusantara Nomor Dokumen: SOP-OPS-001 Tanggal Berlaku: 19 Mei 2026 Disusun Oleh: Divisi Operasional A. Tujuan Dokumen ini dibuat untuk memastikan seluruh aktivitas operasional perusa..."
+          }
+        },
+        {
+          "id": "neg-003",
+          "question": "Apa nama vendor asuransi kesehatan perusahaan?",
+          "negative_false_positive": true,
+          "top_result": {
+            "rank": 1,
+            "id": "1b1fc095-aa03-477e-98af-250245432ea2",
+            "document_id": "185661ea-2730-42c0-9103-e1fde7318047",
+            "document_name": "Prosedur IT Perusahaan",
+            "page_number": 2,
+            "chunk_index": 1,
+            "similarity": 0.365515410425653,
+            "preview": "Dokumen ini merupakan file dummy untuk simulasi prosedur keamanan dan operasional IT perusahaan."
+          }
+        }
+      ]
+    }
+  ],
+  "results": [
+    {
+      "id": "hr-001",
+      "category": "hr",
+      "question": "Berapa lama masa probation karyawan?",
+      "expected_answer": "Masa probation berlangsung selama 3 bulan.",
+      "must_answer": true,
+      "expected_documents": [
+        "HR Document"
+      ],
+      "expected_sources": [
+        {
+          "document_name": "HR Document",
+          "page_number": 1,
+          "chunk_index": 0
+        }
+      ],
+      "config": {
+        "matchCount": 2,
+        "threshold": 0.25,
+        "filterLlm": "OFF"
+      },
+      "metrics": {
+        "document_hit": true,
+        "document_rank": 1,
+        "source_hit": true,
+        "source_rank": 1,
+        "reciprocal_document_rank": 1,
+        "reciprocal_source_rank": 1,
+        "negative_false_positive": false,
+        "retrieved_count": 2,
+        "embedding_ms": 698,
+        "search_ms": 786,
+        "total_ms": 1485
+      },
+      "retrieved": [
+        {
+          "rank": 1,
+          "id": "0e698fc6-ccab-47a8-a28b-e2af5460ce84",
+          "document_id": "cb64e900-81a3-4f8c-a00b-84ca31384817",
+          "document_name": "HR Document",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.431094149115039,
+          "preview": "Dokumen HR (Human Resource) Kebijakan Karyawan Nomor Dokumen: HR-EMP-002 Divisi: Human Resource A. Rekrutmen 1. Kandidat wajib mengikuti proses screening. 2. Interview dilakukan minimal 2 tahap. 3. Hasil interview disimp..."
+        },
+        {
+          "rank": 2,
+          "id": "169e508d-750f-456f-aa7c-7de40ea25ff5",
+          "document_id": "5477816a-6e5c-48d8-ad05-099fbc76f149",
+          "document_name": "SOP Operasional Harian",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.308290796450011,
+          "preview": "SOP Operasional Harian PT Maju Digital Nusantara Nomor Dokumen: SOP-OPS-001 Tanggal Berlaku: 19 Mei 2026 Disusun Oleh: Divisi Operasional A. Tujuan Dokumen ini dibuat untuk memastikan seluruh aktivitas operasional perusa..."
+        }
+      ]
+    },
+    {
+      "id": "hr-002",
+      "category": "hr",
+      "question": "Berapa jumlah cuti tahunan karyawan?",
+      "expected_answer": "Karyawan mendapat cuti tahunan 12 hari kerja.",
+      "must_answer": true,
+      "expected_documents": [
+        "HR Document"
+      ],
+      "expected_sources": [
+        {
+          "document_name": "HR Document",
+          "page_number": 1,
+          "chunk_index": 0
+        }
+      ],
+      "config": {
+        "matchCount": 2,
+        "threshold": 0.25,
+        "filterLlm": "OFF"
+      },
+      "metrics": {
+        "document_hit": true,
+        "document_rank": 1,
+        "source_hit": true,
+        "source_rank": 1,
+        "reciprocal_document_rank": 1,
+        "reciprocal_source_rank": 1,
+        "negative_false_positive": false,
+        "retrieved_count": 2,
+        "embedding_ms": 393,
+        "search_ms": 418,
+        "total_ms": 811
+      },
+      "retrieved": [
+        {
+          "rank": 1,
+          "id": "0e698fc6-ccab-47a8-a28b-e2af5460ce84",
+          "document_id": "cb64e900-81a3-4f8c-a00b-84ca31384817",
+          "document_name": "HR Document",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.461254439260171,
+          "preview": "Dokumen HR (Human Resource) Kebijakan Karyawan Nomor Dokumen: HR-EMP-002 Divisi: Human Resource A. Rekrutmen 1. Kandidat wajib mengikuti proses screening. 2. Interview dilakukan minimal 2 tahap. 3. Hasil interview disimp..."
+        },
+        {
+          "rank": 2,
+          "id": "169e508d-750f-456f-aa7c-7de40ea25ff5",
+          "document_id": "5477816a-6e5c-48d8-ad05-099fbc76f149",
+          "document_name": "SOP Operasional Harian",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.35367313275817,
+          "preview": "SOP Operasional Harian PT Maju Digital Nusantara Nomor Dokumen: SOP-OPS-001 Tanggal Berlaku: 19 Mei 2026 Disusun Oleh: Divisi Operasional A. Tujuan Dokumen ini dibuat untuk memastikan seluruh aktivitas operasional perusa..."
+        }
+      ]
+    },
+    {
+      "id": "hr-003",
+      "category": "hr",
+      "question": "Kapan pengajuan cuti paling lambat dilakukan?",
+      "expected_answer": "Pengajuan cuti dilakukan minimal H-3.",
+      "must_answer": true,
+      "expected_documents": [
+        "HR Document"
+      ],
+      "expected_sources": [
+        {
+          "document_name": "HR Document",
+          "page_number": 1,
+          "chunk_index": 0
+        }
+      ],
+      "config": {
+        "matchCount": 2,
+        "threshold": 0.25,
+        "filterLlm": "OFF"
+      },
+      "metrics": {
+        "document_hit": true,
+        "document_rank": 1,
+        "source_hit": true,
+        "source_rank": 1,
+        "reciprocal_document_rank": 1,
+        "reciprocal_source_rank": 1,
+        "negative_false_positive": false,
+        "retrieved_count": 2,
+        "embedding_ms": 368,
+        "search_ms": 145,
+        "total_ms": 512
+      },
+      "retrieved": [
+        {
+          "rank": 1,
+          "id": "0e698fc6-ccab-47a8-a28b-e2af5460ce84",
+          "document_id": "cb64e900-81a3-4f8c-a00b-84ca31384817",
+          "document_name": "HR Document",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.371426637459803,
+          "preview": "Dokumen HR (Human Resource) Kebijakan Karyawan Nomor Dokumen: HR-EMP-002 Divisi: Human Resource A. Rekrutmen 1. Kandidat wajib mengikuti proses screening. 2. Interview dilakukan minimal 2 tahap. 3. Hasil interview disimp..."
+        },
+        {
+          "rank": 2,
+          "id": "1b1fc095-aa03-477e-98af-250245432ea2",
+          "document_id": "185661ea-2730-42c0-9103-e1fde7318047",
+          "document_name": "Prosedur IT Perusahaan",
+          "page_number": 2,
+          "chunk_index": 1,
+          "similarity": 0.331813091383705,
+          "preview": "Dokumen ini merupakan file dummy untuk simulasi prosedur keamanan dan operasional IT perusahaan."
+        }
+      ]
+    },
+    {
+      "id": "hr-004",
+      "category": "hr",
+      "question": "Apa saja dasar penilaian kinerja karyawan?",
+      "expected_answer": "Penilaian kinerja berdasarkan kedisiplinan, kualitas pekerjaan, kolaborasi tim, dan pencapaian target.",
+      "must_answer": true,
+      "expected_documents": [
+        "HR Document"
+      ],
+      "expected_sources": [
+        {
+          "document_name": "HR Document",
+          "page_number": 1,
+          "chunk_index": 0
+        }
+      ],
+      "config": {
+        "matchCount": 2,
+        "threshold": 0.25,
+        "filterLlm": "OFF"
+      },
+      "metrics": {
+        "document_hit": true,
+        "document_rank": 1,
+        "source_hit": true,
+        "source_rank": 1,
+        "reciprocal_document_rank": 1,
+        "reciprocal_source_rank": 1,
+        "negative_false_positive": false,
+        "retrieved_count": 2,
+        "embedding_ms": 383,
+        "search_ms": 367,
+        "total_ms": 750
+      },
+      "retrieved": [
+        {
+          "rank": 1,
+          "id": "0e698fc6-ccab-47a8-a28b-e2af5460ce84",
+          "document_id": "cb64e900-81a3-4f8c-a00b-84ca31384817",
+          "document_name": "HR Document",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.438689493061253,
+          "preview": "Dokumen HR (Human Resource) Kebijakan Karyawan Nomor Dokumen: HR-EMP-002 Divisi: Human Resource A. Rekrutmen 1. Kandidat wajib mengikuti proses screening. 2. Interview dilakukan minimal 2 tahap. 3. Hasil interview disimp..."
+        },
+        {
+          "rank": 2,
+          "id": "5f136593-ab43-4ca5-aa2d-39404771a78e",
+          "document_id": "185661ea-2730-42c0-9103-e1fde7318047",
+          "document_name": "Prosedur IT Perusahaan",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.359729205733049,
+          "preview": "Prosedur IT Perusahaan Kebijakan Teknologi Informasi Nomor Dokumen: IT-SEC-003 Divisi: Information Technology A. Manajemen Akun 1. Setiap karyawan mendapatkan akun email perusahaan. 2. Password wajib diganti setiap 90 ha..."
+        }
+      ]
+    },
+    {
+      "id": "it-001",
+      "category": "it",
+      "question": "Seberapa sering password wajib diganti?",
+      "expected_answer": "Password wajib diganti setiap 90 hari.",
+      "must_answer": true,
+      "expected_documents": [
+        "Prosedur IT Perusahaan"
+      ],
+      "expected_sources": [
+        {
+          "document_name": "Prosedur IT Perusahaan",
+          "page_number": 1,
+          "chunk_index": 0
+        }
+      ],
+      "config": {
+        "matchCount": 2,
+        "threshold": 0.25,
+        "filterLlm": "OFF"
+      },
+      "metrics": {
+        "document_hit": true,
+        "document_rank": 2,
+        "source_hit": true,
+        "source_rank": 2,
+        "reciprocal_document_rank": 0.5,
+        "reciprocal_source_rank": 0.5,
+        "negative_false_positive": false,
+        "retrieved_count": 2,
+        "embedding_ms": 389,
+        "search_ms": 315,
+        "total_ms": 704
+      },
+      "retrieved": [
+        {
+          "rank": 1,
+          "id": "169e508d-750f-456f-aa7c-7de40ea25ff5",
+          "document_id": "5477816a-6e5c-48d8-ad05-099fbc76f149",
+          "document_name": "SOP Operasional Harian",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.403870445065809,
+          "preview": "SOP Operasional Harian PT Maju Digital Nusantara Nomor Dokumen: SOP-OPS-001 Tanggal Berlaku: 19 Mei 2026 Disusun Oleh: Divisi Operasional A. Tujuan Dokumen ini dibuat untuk memastikan seluruh aktivitas operasional perusa..."
+        },
+        {
+          "rank": 2,
+          "id": "5f136593-ab43-4ca5-aa2d-39404771a78e",
+          "document_id": "185661ea-2730-42c0-9103-e1fde7318047",
+          "document_name": "Prosedur IT Perusahaan",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.372513181448283,
+          "preview": "Prosedur IT Perusahaan Kebijakan Teknologi Informasi Nomor Dokumen: IT-SEC-003 Divisi: Information Technology A. Manajemen Akun 1. Setiap karyawan mendapatkan akun email perusahaan. 2. Password wajib diganti setiap 90 ha..."
+        }
+      ]
+    },
+    {
+      "id": "it-002",
+      "category": "it",
+      "question": "Jam berapa backup data otomatis dilakukan?",
+      "expected_answer": "Backup dilakukan otomatis setiap hari pukul 23.00 WIB.",
+      "must_answer": true,
+      "expected_documents": [
+        "Prosedur IT Perusahaan"
+      ],
+      "expected_sources": [
+        {
+          "document_name": "Prosedur IT Perusahaan",
+          "page_number": 1,
+          "chunk_index": 0
+        }
+      ],
+      "config": {
+        "matchCount": 2,
+        "threshold": 0.25,
+        "filterLlm": "OFF"
+      },
+      "metrics": {
+        "document_hit": true,
+        "document_rank": 1,
+        "source_hit": true,
+        "source_rank": 1,
+        "reciprocal_document_rank": 1,
+        "reciprocal_source_rank": 1,
+        "negative_false_positive": false,
+        "retrieved_count": 2,
+        "embedding_ms": 379,
+        "search_ms": 624,
+        "total_ms": 1002
+      },
+      "retrieved": [
+        {
+          "rank": 1,
+          "id": "5f136593-ab43-4ca5-aa2d-39404771a78e",
+          "document_id": "185661ea-2730-42c0-9103-e1fde7318047",
+          "document_name": "Prosedur IT Perusahaan",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.431668915367172,
+          "preview": "Prosedur IT Perusahaan Kebijakan Teknologi Informasi Nomor Dokumen: IT-SEC-003 Divisi: Information Technology A. Manajemen Akun 1. Setiap karyawan mendapatkan akun email perusahaan. 2. Password wajib diganti setiap 90 ha..."
+        },
+        {
+          "rank": 2,
+          "id": "169e508d-750f-456f-aa7c-7de40ea25ff5",
+          "document_id": "5477816a-6e5c-48d8-ad05-099fbc76f149",
+          "document_name": "SOP Operasional Harian",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.423902272449056,
+          "preview": "SOP Operasional Harian PT Maju Digital Nusantara Nomor Dokumen: SOP-OPS-001 Tanggal Berlaku: 19 Mei 2026 Disusun Oleh: Divisi Operasional A. Tujuan Dokumen ini dibuat untuk memastikan seluruh aktivitas operasional perusa..."
+        }
+      ]
+    },
+    {
+      "id": "it-003",
+      "category": "it",
+      "question": "Bagaimana prosedur melaporkan insiden IT?",
+      "expected_answer": "Insiden dilaporkan melalui tiket IT, lalu tim IT melakukan investigasi awal, sistem terdampak dapat diisolasi sementara, dan hasil investigasi didokumentasikan.",
+      "must_answer": true,
+      "expected_documents": [
+        "Prosedur IT Perusahaan"
+      ],
+      "expected_sources": [
+        {
+          "document_name": "Prosedur IT Perusahaan",
+          "page_number": 1,
+          "chunk_index": 0
+        }
+      ],
+      "config": {
+        "matchCount": 2,
+        "threshold": 0.25,
+        "filterLlm": "OFF"
+      },
+      "metrics": {
+        "document_hit": true,
+        "document_rank": 1,
+        "source_hit": true,
+        "source_rank": 2,
+        "reciprocal_document_rank": 1,
+        "reciprocal_source_rank": 0.5,
+        "negative_false_positive": false,
+        "retrieved_count": 2,
+        "embedding_ms": 382,
+        "search_ms": 152,
+        "total_ms": 535
+      },
+      "retrieved": [
+        {
+          "rank": 1,
+          "id": "1b1fc095-aa03-477e-98af-250245432ea2",
+          "document_id": "185661ea-2730-42c0-9103-e1fde7318047",
+          "document_name": "Prosedur IT Perusahaan",
+          "page_number": 2,
+          "chunk_index": 1,
+          "similarity": 0.479141493453696,
+          "preview": "Dokumen ini merupakan file dummy untuk simulasi prosedur keamanan dan operasional IT perusahaan."
+        },
+        {
+          "rank": 2,
+          "id": "5f136593-ab43-4ca5-aa2d-39404771a78e",
+          "document_id": "185661ea-2730-42c0-9103-e1fde7318047",
+          "document_name": "Prosedur IT Perusahaan",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.474658806428328,
+          "preview": "Prosedur IT Perusahaan Kebijakan Teknologi Informasi Nomor Dokumen: IT-SEC-003 Divisi: Information Technology A. Manajemen Akun 1. Setiap karyawan mendapatkan akun email perusahaan. 2. Password wajib diganti setiap 90 ha..."
+        }
+      ]
+    },
+    {
+      "id": "it-004",
+      "category": "it",
+      "question": "Di mana data perusahaan wajib disimpan?",
+      "expected_answer": "Data perusahaan wajib disimpan pada server resmi.",
+      "must_answer": true,
+      "expected_documents": [
+        "Prosedur IT Perusahaan"
+      ],
+      "expected_sources": [
+        {
+          "document_name": "Prosedur IT Perusahaan",
+          "page_number": 1,
+          "chunk_index": 0
+        }
+      ],
+      "config": {
+        "matchCount": 2,
+        "threshold": 0.25,
+        "filterLlm": "OFF"
+      },
+      "metrics": {
+        "document_hit": true,
+        "document_rank": 1,
+        "source_hit": true,
+        "source_rank": 1,
+        "reciprocal_document_rank": 1,
+        "reciprocal_source_rank": 1,
+        "negative_false_positive": false,
+        "retrieved_count": 2,
+        "embedding_ms": 383,
+        "search_ms": 428,
+        "total_ms": 811
+      },
+      "retrieved": [
+        {
+          "rank": 1,
+          "id": "5f136593-ab43-4ca5-aa2d-39404771a78e",
+          "document_id": "185661ea-2730-42c0-9103-e1fde7318047",
+          "document_name": "Prosedur IT Perusahaan",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.433578060059161,
+          "preview": "Prosedur IT Perusahaan Kebijakan Teknologi Informasi Nomor Dokumen: IT-SEC-003 Divisi: Information Technology A. Manajemen Akun 1. Setiap karyawan mendapatkan akun email perusahaan. 2. Password wajib diganti setiap 90 ha..."
+        },
+        {
+          "rank": 2,
+          "id": "169e508d-750f-456f-aa7c-7de40ea25ff5",
+          "document_id": "5477816a-6e5c-48d8-ad05-099fbc76f149",
+          "document_name": "SOP Operasional Harian",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.391021522583562,
+          "preview": "SOP Operasional Harian PT Maju Digital Nusantara Nomor Dokumen: SOP-OPS-001 Tanggal Berlaku: 19 Mei 2026 Disusun Oleh: Divisi Operasional A. Tujuan Dokumen ini dibuat untuk memastikan seluruh aktivitas operasional perusa..."
+        }
+      ]
+    },
+    {
+      "id": "ops-001",
+      "category": "sop",
+      "question": "Jam operasional perusahaan hari Senin sampai Jumat pukul berapa?",
+      "expected_answer": "Jam operasional Senin sampai Jumat adalah 08.00 sampai 17.00 WIB.",
+      "must_answer": true,
+      "expected_documents": [
+        "SOP Operasional Harian"
+      ],
+      "expected_sources": [
+        {
+          "document_name": "SOP Operasional Harian",
+          "page_number": 1,
+          "chunk_index": 0
+        }
+      ],
+      "config": {
+        "matchCount": 2,
+        "threshold": 0.25,
+        "filterLlm": "OFF"
+      },
+      "metrics": {
+        "document_hit": true,
+        "document_rank": 1,
+        "source_hit": true,
+        "source_rank": 1,
+        "reciprocal_document_rank": 1,
+        "reciprocal_source_rank": 1,
+        "negative_false_positive": false,
+        "retrieved_count": 2,
+        "embedding_ms": 376,
+        "search_ms": 170,
+        "total_ms": 545
+      },
+      "retrieved": [
+        {
+          "rank": 1,
+          "id": "169e508d-750f-456f-aa7c-7de40ea25ff5",
+          "document_id": "5477816a-6e5c-48d8-ad05-099fbc76f149",
+          "document_name": "SOP Operasional Harian",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.499876963985259,
+          "preview": "SOP Operasional Harian PT Maju Digital Nusantara Nomor Dokumen: SOP-OPS-001 Tanggal Berlaku: 19 Mei 2026 Disusun Oleh: Divisi Operasional A. Tujuan Dokumen ini dibuat untuk memastikan seluruh aktivitas operasional perusa..."
+        },
+        {
+          "rank": 2,
+          "id": "1b1fc095-aa03-477e-98af-250245432ea2",
+          "document_id": "185661ea-2730-42c0-9103-e1fde7318047",
+          "document_name": "Prosedur IT Perusahaan",
+          "page_number": 2,
+          "chunk_index": 1,
+          "similarity": 0.388642403253916,
+          "preview": "Dokumen ini merupakan file dummy untuk simulasi prosedur keamanan dan operasional IT perusahaan."
+        }
+      ]
+    },
+    {
+      "id": "ops-002",
+      "category": "sop",
+      "question": "Berapa lama keterlambatan yang wajib diberi alasan ke atasan?",
+      "expected_answer": "Keterlambatan lebih dari 15 menit wajib memberikan alasan kepada atasan.",
+      "must_answer": true,
+      "expected_documents": [
+        "SOP Operasional Harian"
+      ],
+      "expected_sources": [
+        {
+          "document_name": "SOP Operasional Harian",
+          "page_number": 1,
+          "chunk_index": 0
+        }
+      ],
+      "config": {
+        "matchCount": 2,
+        "threshold": 0.25,
+        "filterLlm": "OFF"
+      },
+      "metrics": {
+        "document_hit": true,
+        "document_rank": 1,
+        "source_hit": true,
+        "source_rank": 1,
+        "reciprocal_document_rank": 1,
+        "reciprocal_source_rank": 1,
+        "negative_false_positive": false,
+        "retrieved_count": 2,
+        "embedding_ms": 373,
+        "search_ms": 370,
+        "total_ms": 743
+      },
+      "retrieved": [
+        {
+          "rank": 1,
+          "id": "169e508d-750f-456f-aa7c-7de40ea25ff5",
+          "document_id": "5477816a-6e5c-48d8-ad05-099fbc76f149",
+          "document_name": "SOP Operasional Harian",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.330704623972635,
+          "preview": "SOP Operasional Harian PT Maju Digital Nusantara Nomor Dokumen: SOP-OPS-001 Tanggal Berlaku: 19 Mei 2026 Disusun Oleh: Divisi Operasional A. Tujuan Dokumen ini dibuat untuk memastikan seluruh aktivitas operasional perusa..."
+        },
+        {
+          "rank": 2,
+          "id": "1b1fc095-aa03-477e-98af-250245432ea2",
+          "document_id": "185661ea-2730-42c0-9103-e1fde7318047",
+          "document_name": "Prosedur IT Perusahaan",
+          "page_number": 2,
+          "chunk_index": 1,
+          "similarity": 0.295166663753635,
+          "preview": "Dokumen ini merupakan file dummy untuk simulasi prosedur keamanan dan operasional IT perusahaan."
+        }
+      ]
+    },
+    {
+      "id": "ops-003",
+      "category": "sop",
+      "question": "SOP operasional berlaku untuk siapa saja?",
+      "expected_answer": "SOP berlaku untuk seluruh karyawan tetap, kontrak, dan magang pada area operasional perusahaan.",
+      "must_answer": true,
+      "expected_documents": [
+        "SOP Operasional Harian"
+      ],
+      "expected_sources": [
+        {
+          "document_name": "SOP Operasional Harian",
+          "page_number": 1,
+          "chunk_index": 0
+        }
+      ],
+      "config": {
+        "matchCount": 2,
+        "threshold": 0.25,
+        "filterLlm": "OFF"
+      },
+      "metrics": {
+        "document_hit": true,
+        "document_rank": 1,
+        "source_hit": true,
+        "source_rank": 1,
+        "reciprocal_document_rank": 1,
+        "reciprocal_source_rank": 1,
+        "negative_false_positive": false,
+        "retrieved_count": 2,
+        "embedding_ms": 369,
+        "search_ms": 313,
+        "total_ms": 682
+      },
+      "retrieved": [
+        {
+          "rank": 1,
+          "id": "169e508d-750f-456f-aa7c-7de40ea25ff5",
+          "document_id": "5477816a-6e5c-48d8-ad05-099fbc76f149",
+          "document_name": "SOP Operasional Harian",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.485811596452216,
+          "preview": "SOP Operasional Harian PT Maju Digital Nusantara Nomor Dokumen: SOP-OPS-001 Tanggal Berlaku: 19 Mei 2026 Disusun Oleh: Divisi Operasional A. Tujuan Dokumen ini dibuat untuk memastikan seluruh aktivitas operasional perusa..."
+        },
+        {
+          "rank": 2,
+          "id": "1b1fc095-aa03-477e-98af-250245432ea2",
+          "document_id": "185661ea-2730-42c0-9103-e1fde7318047",
+          "document_name": "Prosedur IT Perusahaan",
+          "page_number": 2,
+          "chunk_index": 1,
+          "similarity": 0.385011849283662,
+          "preview": "Dokumen ini merupakan file dummy untuk simulasi prosedur keamanan dan operasional IT perusahaan."
+        }
+      ]
+    },
+    {
+      "id": "ops-004",
+      "category": "sop",
+      "question": "Apa tujuan dokumen SOP operasional harian?",
+      "expected_answer": "Dokumen dibuat untuk memastikan aktivitas operasional berjalan konsisten, efisien, dan terdokumentasi.",
+      "must_answer": true,
+      "expected_documents": [
+        "SOP Operasional Harian"
+      ],
+      "expected_sources": [
+        {
+          "document_name": "SOP Operasional Harian",
+          "page_number": 1,
+          "chunk_index": 0
+        }
+      ],
+      "config": {
+        "matchCount": 2,
+        "threshold": 0.25,
+        "filterLlm": "OFF"
+      },
+      "metrics": {
+        "document_hit": true,
+        "document_rank": 1,
+        "source_hit": true,
+        "source_rank": 1,
+        "reciprocal_document_rank": 1,
+        "reciprocal_source_rank": 1,
+        "negative_false_positive": false,
+        "retrieved_count": 2,
+        "embedding_ms": 371,
+        "search_ms": 307,
+        "total_ms": 678
+      },
+      "retrieved": [
+        {
+          "rank": 1,
+          "id": "169e508d-750f-456f-aa7c-7de40ea25ff5",
+          "document_id": "5477816a-6e5c-48d8-ad05-099fbc76f149",
+          "document_name": "SOP Operasional Harian",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.555232830137559,
+          "preview": "SOP Operasional Harian PT Maju Digital Nusantara Nomor Dokumen: SOP-OPS-001 Tanggal Berlaku: 19 Mei 2026 Disusun Oleh: Divisi Operasional A. Tujuan Dokumen ini dibuat untuk memastikan seluruh aktivitas operasional perusa..."
+        },
+        {
+          "rank": 2,
+          "id": "1b1fc095-aa03-477e-98af-250245432ea2",
+          "document_id": "185661ea-2730-42c0-9103-e1fde7318047",
+          "document_name": "Prosedur IT Perusahaan",
+          "page_number": 2,
+          "chunk_index": 1,
+          "similarity": 0.471393688376181,
+          "preview": "Dokumen ini merupakan file dummy untuk simulasi prosedur keamanan dan operasional IT perusahaan."
+        }
+      ]
+    },
+    {
+      "id": "neg-001",
+      "category": "negative",
+      "question": "Berapa nominal tunjangan makan harian karyawan?",
+      "expected_answer": "Informasi nominal tunjangan makan tidak ditemukan di knowledge base.",
+      "must_answer": false,
+      "expected_documents": [],
+      "expected_sources": [],
+      "config": {
+        "matchCount": 2,
+        "threshold": 0.25,
+        "filterLlm": "OFF"
+      },
+      "metrics": {
+        "document_hit": null,
+        "document_rank": null,
+        "source_hit": null,
+        "source_rank": null,
+        "reciprocal_document_rank": 0,
+        "reciprocal_source_rank": 0,
+        "negative_false_positive": true,
+        "retrieved_count": 2,
+        "embedding_ms": 385,
+        "search_ms": 347,
+        "total_ms": 732
+      },
+      "retrieved": [
+        {
+          "rank": 1,
+          "id": "0e698fc6-ccab-47a8-a28b-e2af5460ce84",
+          "document_id": "cb64e900-81a3-4f8c-a00b-84ca31384817",
+          "document_name": "HR Document",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.475834842953264,
+          "preview": "Dokumen HR (Human Resource) Kebijakan Karyawan Nomor Dokumen: HR-EMP-002 Divisi: Human Resource A. Rekrutmen 1. Kandidat wajib mengikuti proses screening. 2. Interview dilakukan minimal 2 tahap. 3. Hasil interview disimp..."
+        },
+        {
+          "rank": 2,
+          "id": "fa0a487a-31a1-4d48-b13f-a59889a83529",
+          "document_id": "cb64e900-81a3-4f8c-a00b-84ca31384817",
+          "document_name": "HR Document",
+          "page_number": 2,
+          "chunk_index": 1,
+          "similarity": 0.391954928438796,
+          "preview": "4 Pemutusan hubungan kerja Dokumen HR ini merupakan file dummy untuk simulasi sistem perusahaan dan testing dokumen internal."
+        }
+      ]
+    },
+    {
+      "id": "neg-002",
+      "category": "negative",
+      "question": "Apakah perusahaan menyediakan kebijakan kerja remote permanen?",
+      "expected_answer": "Informasi kebijakan kerja remote permanen tidak ditemukan di knowledge base.",
+      "must_answer": false,
+      "expected_documents": [],
+      "expected_sources": [],
+      "config": {
+        "matchCount": 2,
+        "threshold": 0.25,
+        "filterLlm": "OFF"
+      },
+      "metrics": {
+        "document_hit": null,
+        "document_rank": null,
+        "source_hit": null,
+        "source_rank": null,
+        "reciprocal_document_rank": 0,
+        "reciprocal_source_rank": 0,
+        "negative_false_positive": true,
+        "retrieved_count": 2,
+        "embedding_ms": 375,
+        "search_ms": 154,
+        "total_ms": 529
+      },
+      "retrieved": [
+        {
+          "rank": 1,
+          "id": "169e508d-750f-456f-aa7c-7de40ea25ff5",
+          "document_id": "5477816a-6e5c-48d8-ad05-099fbc76f149",
+          "document_name": "SOP Operasional Harian",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.446594519113224,
+          "preview": "SOP Operasional Harian PT Maju Digital Nusantara Nomor Dokumen: SOP-OPS-001 Tanggal Berlaku: 19 Mei 2026 Disusun Oleh: Divisi Operasional A. Tujuan Dokumen ini dibuat untuk memastikan seluruh aktivitas operasional perusa..."
+        },
+        {
+          "rank": 2,
+          "id": "5f136593-ab43-4ca5-aa2d-39404771a78e",
+          "document_id": "185661ea-2730-42c0-9103-e1fde7318047",
+          "document_name": "Prosedur IT Perusahaan",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.437662226605515,
+          "preview": "Prosedur IT Perusahaan Kebijakan Teknologi Informasi Nomor Dokumen: IT-SEC-003 Divisi: Information Technology A. Manajemen Akun 1. Setiap karyawan mendapatkan akun email perusahaan. 2. Password wajib diganti setiap 90 ha..."
+        }
+      ]
+    },
+    {
+      "id": "neg-003",
+      "category": "negative",
+      "question": "Apa nama vendor asuransi kesehatan perusahaan?",
+      "expected_answer": "Informasi vendor asuransi kesehatan tidak ditemukan di knowledge base.",
+      "must_answer": false,
+      "expected_documents": [],
+      "expected_sources": [],
+      "config": {
+        "matchCount": 2,
+        "threshold": 0.25,
+        "filterLlm": "OFF"
+      },
+      "metrics": {
+        "document_hit": null,
+        "document_rank": null,
+        "source_hit": null,
+        "source_rank": null,
+        "reciprocal_document_rank": 0,
+        "reciprocal_source_rank": 0,
+        "negative_false_positive": true,
+        "retrieved_count": 2,
+        "embedding_ms": 393,
+        "search_ms": 176,
+        "total_ms": 569
+      },
+      "retrieved": [
+        {
+          "rank": 1,
+          "id": "1b1fc095-aa03-477e-98af-250245432ea2",
+          "document_id": "185661ea-2730-42c0-9103-e1fde7318047",
+          "document_name": "Prosedur IT Perusahaan",
+          "page_number": 2,
+          "chunk_index": 1,
+          "similarity": 0.365515410425653,
+          "preview": "Dokumen ini merupakan file dummy untuk simulasi prosedur keamanan dan operasional IT perusahaan."
+        },
+        {
+          "rank": 2,
+          "id": "169e508d-750f-456f-aa7c-7de40ea25ff5",
+          "document_id": "5477816a-6e5c-48d8-ad05-099fbc76f149",
+          "document_name": "SOP Operasional Harian",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.348134960348977,
+          "preview": "SOP Operasional Harian PT Maju Digital Nusantara Nomor Dokumen: SOP-OPS-001 Tanggal Berlaku: 19 Mei 2026 Disusun Oleh: Divisi Operasional A. Tujuan Dokumen ini dibuat untuk memastikan seluruh aktivitas operasional perusa..."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,127 @@
+{
+  "generated_at": "2026-07-07T04:31:53.456Z",
+  "retrieval_report": "eval/rag/reports/retrieval-latest.json",
+  "config": {
+    "matchCount": 2,
+    "threshold": 0.25,
+    "filterLlm": "OFF"
+  },
+  "environment": {
+    "chat_provider": "groq",
+    "chat_model": "llama-3.1-8b-instant"
+  },
+  "summary": {
+    "total_cases": 3,
+    "source_marker_rate": 1,
+    "sources_section_rate": 1,
+    "negative_refusal_rate": null,
+    "average_latency_ms": 766
+  },
+  "results": [
+    {
+      "id": "hr-001",
+      "category": "hr",
+      "question": "Berapa lama masa probation karyawan?",
+      "must_answer": true,
+      "expected_answer": "Masa probation berlangsung selama 3 bulan.",
+      "expected_documents": [
+        "HR Document"
+      ],
+      "answer": "Masa probation karyawan berlangsung selama 3 bulan [S1].\n\nSources:\n[S1] HR Document, page 1, chunk 0",
+      "metrics": {
+        "has_source_marker": true,
+        "has_sources_section": true,
+        "negative_refusal": null,
+        "needs_manual_review": true,
+        "source_count": 2,
+        "total_ms": 1236
+      },
+      "sources": [
+        {
+          "source_id": "S1",
+          "document_name": "HR Document",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.431094149115039
+        },
+        {
+          "source_id": "S2",
+          "document_name": "SOP Operasional Harian",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.308290796450011
+        }
+      ]
+    },
+    {
+      "id": "hr-002",
+      "category": "hr",
+      "question": "Berapa jumlah cuti tahunan karyawan?",
+      "must_answer": true,
+      "expected_answer": "Karyawan mendapat cuti tahunan 12 hari kerja.",
+      "expected_documents": [
+        "HR Document"
+      ],
+      "answer": "Karyawan memiliki cuti tahunan sebesar 12 hari kerja [S1].\n\nSources:\n[S1] Dokumen HR (Human Resource), Nomor Dokumen: HR-EMP-002, A. Cuti.",
+      "metrics": {
+        "has_source_marker": true,
+        "has_sources_section": true,
+        "negative_refusal": null,
+        "needs_manual_review": true,
+        "source_count": 2,
+        "total_ms": 520
+      },
+      "sources": [
+        {
+          "source_id": "S1",
+          "document_name": "HR Document",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.461254439260171
+        },
+        {
+          "source_id": "S2",
+          "document_name": "SOP Operasional Harian",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.35367313275817
+        }
+      ]
+    },
+    {
+      "id": "hr-003",
+      "category": "hr",
+      "question": "Kapan pengajuan cuti paling lambat dilakukan?",
+      "must_answer": true,
+      "expected_answer": "Pengajuan cuti dilakukan minimal H-3.",
+      "expected_documents": [
+        "HR Document"
+      ],
+      "answer": "Pengajuan cuti minimal dilakukan H-3 (3 hari sebelumnya) [S1].\n\nSources:\n[S1] Dokumen HR (Human Resource), page 1, chunk 0",
+      "metrics": {
+        "has_source_marker": true,
+        "has_sources_section": true,
+        "negative_refusal": null,
+        "needs_manual_review": true,
+        "source_count": 2,
+        "total_ms": 543
+      },
+      "sources": [
+        {
+          "source_id": "S1",
+          "document_name": "HR Document",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.371426637459803
+        },
+        {
+          "source_id": "S2",
+          "document_name": "Prosedur IT Perusahaan",
+          "page_number": 2,
+          "chunk_index": 1,
+          "similarity": 0.331813091383705
+        }
+      ]
+    }
+  ]
+}

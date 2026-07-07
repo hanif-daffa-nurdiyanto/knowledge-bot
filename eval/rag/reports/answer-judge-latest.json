@@ -1,0 +1,100 @@
+{
+  "generated_at": "2026-07-07T07:23:52.204Z",
+  "retrieval_report": "eval/rag/reports/retrieval-latest.json",
+  "config": {
+    "matchCount": 2,
+    "threshold": 0.25,
+    "filterLlm": "OFF"
+  },
+  "environment": {
+    "chat_provider": "groq",
+    "chat_model": "llama-3.1-8b-instant"
+  },
+  "judge_enabled": true,
+  "summary": {
+    "total_cases": 2,
+    "source_marker_rate": 1,
+    "sources_section_rate": 1,
+    "negative_refusal_rate": null,
+    "judged_cases": 2,
+    "average_judge_score": 2,
+    "judge_correctness_average": 2,
+    "judge_groundedness_average": 2,
+    "judge_completeness_average": 2,
+    "average_latency_ms": 2182
+  },
+  "results": [
+    {
+      "id": "hr-001",
+      "category": "hr",
+      "question": "Berapa lama masa probation karyawan?",
+      "must_answer": true,
+      "expected_answer": "Masa probation berlangsung selama 3 bulan.",
+      "expected_documents": [
+        "HR Document"
+      ],
+      "answer": "Masa probation karyawan berlangsung selama 3 bulan [S1].\n\nSources:\n[S1] HR Document, page 1, chunk 0, B. Masa Percobaan, 1. Masa probation berlangsung selama 3 bulan.",
+      "judge": {
+        "correctness": 2,
+        "groundedness": 2,
+        "completeness": 2,
+        "refusal_ok": false,
+        "source_attribution_ok": true,
+        "notes": "Answer matches the expected answer and is fully attributed to the source."
+      },
+      "metrics": {
+        "has_source_marker": true,
+        "has_sources_section": true,
+        "negative_refusal": null,
+        "needs_manual_review": true,
+        "source_count": 1,
+        "total_ms": 3294
+      },
+      "sources": [
+        {
+          "source_id": "S1",
+          "document_name": "HR Document",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.431094149115039
+        }
+      ]
+    },
+    {
+      "id": "hr-002",
+      "category": "hr",
+      "question": "Berapa jumlah cuti tahunan karyawan?",
+      "must_answer": true,
+      "expected_answer": "Karyawan mendapat cuti tahunan 12 hari kerja.",
+      "expected_documents": [
+        "HR Document"
+      ],
+      "answer": "Karyawan mendapatkan 12 hari kerja sebagai cuti tahunan [S1].\n\nSources:\n[S1] HR Document, page 1, chunk 0, B. Masa Percobaan",
+      "judge": {
+        "correctness": 2,
+        "groundedness": 2,
+        "completeness": 2,
+        "refusal_ok": false,
+        "source_attribution_ok": true,
+        "notes": "Answer is accurate and complete, and source is correctly attributed."
+      },
+      "metrics": {
+        "has_source_marker": true,
+        "has_sources_section": true,
+        "negative_refusal": null,
+        "needs_manual_review": true,
+        "source_count": 1,
+        "total_ms": 1069
+      },
+      "sources": [
+        {
+          "source_id": "S1",
+          "document_name": "HR Document",
+          "page_number": 1,
+          "chunk_index": 0,
+          "similarity": 0.461254439260171
+        }
+      ]
+    }
+  ]
+}
