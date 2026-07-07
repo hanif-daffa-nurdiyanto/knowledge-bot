@@ -13,6 +13,7 @@ import {
   AlertCircle,
   BookOpenText,
   CheckCircle2,
+  Clock3,
   FileText,
   LinkIcon,
   Loader2,
@@ -35,7 +36,7 @@ type AdminDocumentsClientProps = {
   userEmail: string;
 };
 
-type DocumentStatus = "processing" | "ready" | "failed";
+type DocumentStatus = "queued" | "processing" | "ready" | "failed";
 
 type KnowledgeDocument = {
   id: string;
@@ -84,8 +85,11 @@ export function AdminDocumentsClient({
   } | null>(null);
   const { addToast, dismissToast, toasts } = useToasts();
 
-  const hasProcessingDocument = useMemo(
-    () => documents.some((document) => document.status === "processing"),
+  const hasActiveIngestionDocument = useMemo(
+    () =>
+      documents.some((document) =>
+        document.status === "queued" || document.status === "processing"
+      ),
     [documents]
   );
 
@@ -126,13 +130,13 @@ export function AdminDocumentsClient({
   }, [loadDocuments]);
 
   useEffect(() => {
-    if (!hasProcessingDocument) {
+    if (!hasActiveIngestionDocument) {
       return;
     }
 
     const interval = window.setInterval(loadDocuments, 3000);
     return () => window.clearInterval(interval);
-  }, [hasProcessingDocument, loadDocuments]);
+  }, [hasActiveIngestionDocument, loadDocuments]);
 
   function selectFile(nextFile: File | null) {
     setNotice(null);
@@ -530,7 +534,7 @@ export function AdminDocumentsClient({
             <div>
               <h2 className="text-lg font-semibold">Documents</h2>
               <p className="text-sm text-muted-foreground">
-                Polling is active while any document is processing.
+                Polling is active while any document is queued or processing.
               </p>
             </div>
             <Button
@@ -650,6 +654,11 @@ function DocumentRow({
 
 function StatusBadge({ status }: { status: DocumentStatus }) {
   const config = {
+    queued: {
+      className: "border-border bg-muted text-muted-foreground",
+      icon: Clock3,
+      label: "Queued",
+    },
     processing: {
       className: "border-border bg-muted text-muted-foreground",
       icon: Loader2,

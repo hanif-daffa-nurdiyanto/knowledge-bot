@@ -1,7 +1,6 @@
-import { after } from "next/server";
-
 import { requireAdminApiSession } from "@/lib/auth/admin";
-import { processPdfDocument } from "@/lib/ingest/pipeline";
+import { createIngestionJob } from "@/lib/ingest/jobs";
+import { deleteDocumentFile, uploadDocumentFile } from "@/lib/ingest/storage";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -49,7 +48,7 @@ export async function POST(request: Request) {
     .insert({
       name: file.name,
       source_type: "pdf",
-      status: "processing",
+      status: "queued",
       metadata: {
         file_name: file.name,
         file_size: file.size,
@@ -64,17 +63,56 @@ export async function POST(request: Request) {
     return Response.json({ error: error.message }, { status: 500 });
   }
 
-  after(async () => {
-    try {
-      await processPdfDocument({
-        documentId: document.id,
-        fileName: file.name,
-        fileBuffer,
-      });
-    } catch (error) {
-      console.error("PDF ingestion failed", error);
+  let uploadedFile:
+    | { storageBucket: string; storagePath: string }
+    | null = null;
+
+  try {
+    const { storageBucket, storagePath } = await uploadDocumentFile({
+      documentId: document.id,
+      fileName: file.name,
+      fileBuffer,
+      contentType: file.type || "application/pdf",
+    });
+    uploadedFile = { storageBucket, storagePath };
+
+    const { error: documentUpdateError } = await supabase
+      .from("documents")
+      .update({ storage_path: storagePath })
+      .eq("id", document.id);
+
+    if (documentUpdateError) {
+      throw documentUpdateError;
     }
-  });
+
+    await createIngestionJob({
+      documentId: document.id,
+      storageBucket,
+      storagePath,
+      fileName: file.name,
+    });
+  } catch (error) {
+    if (uploadedFile) {
+      await deleteDocumentFile(
+        uploadedFile.storageBucket,
+        uploadedFile.storagePath
+      ).catch((deleteError) => {
+        console.error("Failed to clean up queued upload", deleteError);
+      });
+    }
+
+    await supabase.from("documents").delete().eq("id", document.id);
+
+    return Response.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to queue PDF ingestion.",
+      },
+      { status: 500 }
+    );
+  }
 
   return Response.json(
     {

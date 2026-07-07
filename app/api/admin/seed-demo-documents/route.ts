@@ -1,10 +1,9 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
-import { after } from "next/server";
-
 import { requireAdminApiSession } from "@/lib/auth/admin";
-import { processPdfDocument } from "@/lib/ingest/pipeline";
+import { createIngestionJob } from "@/lib/ingest/jobs";
+import { deleteDocumentFile, uploadDocumentFile } from "@/lib/ingest/storage";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -75,7 +74,7 @@ export async function POST() {
       .insert({
         name: demoDocument.title,
         source_type: "pdf",
-        status: "processing",
+        status: "queued",
         metadata: {
           file_name: demoDocument.fileName,
           seed: true,
@@ -89,19 +88,57 @@ export async function POST() {
       return Response.json({ error: error.message }, { status: 500 });
     }
 
-    seeded.push(document);
+    let uploadedFile:
+      | { storageBucket: string; storagePath: string }
+      | null = null;
 
-    after(async () => {
-      try {
-        await processPdfDocument({
-          documentId: document.id,
-          fileName: demoDocument.fileName,
-          fileBuffer,
-        });
-      } catch (error) {
-        console.error("Demo document seed failed", error);
+    try {
+      const { storageBucket, storagePath } = await uploadDocumentFile({
+        documentId: document.id,
+        fileName: demoDocument.fileName,
+        fileBuffer,
+      });
+      uploadedFile = { storageBucket, storagePath };
+
+      const { error: documentUpdateError } = await supabase
+        .from("documents")
+        .update({ storage_path: storagePath })
+        .eq("id", document.id);
+
+      if (documentUpdateError) {
+        throw documentUpdateError;
       }
-    });
+
+      await createIngestionJob({
+        documentId: document.id,
+        storageBucket,
+        storagePath,
+        fileName: demoDocument.fileName,
+      });
+
+      seeded.push(document);
+    } catch (error) {
+      if (uploadedFile) {
+        await deleteDocumentFile(
+          uploadedFile.storageBucket,
+          uploadedFile.storagePath
+        ).catch((deleteError) => {
+          console.error("Failed to clean up queued demo upload", deleteError);
+        });
+      }
+
+      await supabase.from("documents").delete().eq("id", document.id);
+
+      return Response.json(
+        {
+          error:
+            error instanceof Error
+              ? error.message
+              : `Failed to queue demo document: ${demoDocument.fileName}`,
+        },
+        { status: 500 }
+      );
+    }
   }
 
   return Response.json(

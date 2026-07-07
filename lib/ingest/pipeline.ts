@@ -7,7 +7,9 @@ import {
   embedTexts,
 } from "@/lib/ai/embeddings";
 import { chunkTextPages } from "@/lib/ingest/chunk-text";
+import type { IngestionJob } from "@/lib/ingest/jobs";
 import { parsePdfToPages } from "@/lib/ingest/pdf";
+import { downloadDocumentFile } from "@/lib/ingest/storage";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 const CHUNK_SIZE = 500;
@@ -18,12 +20,14 @@ type ProcessPdfDocumentInput = {
   documentId: string;
   fileName: string;
   fileBuffer: Buffer;
+  markFailedOnError?: boolean;
 };
 
 export async function processPdfDocument({
   documentId,
   fileName,
   fileBuffer,
+  markFailedOnError = true,
 }: ProcessPdfDocumentInput) {
   const supabase = createAdminClient();
 
@@ -105,20 +109,36 @@ export async function processPdfDocument({
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown ingest error.";
 
-    await supabase
-      .from("documents")
-      .update({
-        status: "failed",
-        error_message: message,
-        metadata: {
-          file_name: fileName,
-          failed_at: new Date().toISOString(),
-        },
-      })
-      .eq("id", documentId);
+    if (markFailedOnError) {
+      await supabase
+        .from("documents")
+        .update({
+          status: "failed",
+          error_message: message,
+          metadata: {
+            file_name: fileName,
+            failed_at: new Date().toISOString(),
+          },
+        })
+        .eq("id", documentId);
+    }
 
     throw error;
   }
+}
+
+export async function processPdfDocumentFromStorage(job: IngestionJob) {
+  const fileBuffer = await downloadDocumentFile(
+    job.storage_bucket,
+    job.storage_path
+  );
+
+  await processPdfDocument({
+    documentId: job.document_id,
+    fileName: job.file_name,
+    fileBuffer,
+    markFailedOnError: false,
+  });
 }
 
 async function updateDocumentStatus(
