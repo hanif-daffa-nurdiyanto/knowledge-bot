@@ -1,6 +1,9 @@
+import { after } from "next/server";
+
 import { requireAdminApiSession } from "@/lib/auth/admin";
 import { createIngestionJob } from "@/lib/ingest/jobs";
 import { deleteDocumentFile, uploadDocumentFile } from "@/lib/ingest/storage";
+import { triggerIngestionWorker } from "@/lib/ingest/worker-trigger";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -91,6 +94,9 @@ export async function POST(request: Request) {
       storagePath,
       fileName: file.name,
     });
+
+    const origin = new URL(request.url).origin;
+    after(() => triggerIngestionWorker({ origin, limit: 1 }));
   } catch (error) {
     if (uploadedFile) {
       await deleteDocumentFile(

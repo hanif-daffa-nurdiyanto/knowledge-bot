@@ -6,6 +6,7 @@ import {
   Bot,
   Check,
   ExternalLink,
+  FileText,
   FileSearch,
   Loader2,
   LogOut,
@@ -52,6 +53,13 @@ type Conversation = {
   title: string;
   createdAtLabel: string;
   messages: ChatMessage[];
+};
+
+type ChatDocumentOption = {
+  id: string;
+  name: string;
+  source_type: "pdf" | "notion";
+  updated_at: string;
 };
 
 type PersistedConversation = {
@@ -109,6 +117,9 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
   const [isLoadingHistory, setIsLoadingHistory] = useState(true);
+  const [documents, setDocuments] = useState<ChatDocumentOption[]>([]);
+  const [selectedDocumentId, setSelectedDocumentId] = useState("");
+  const [isLoadingDocuments, setIsLoadingDocuments] = useState(true);
   const [isStreaming, setIsStreaming] = useState(false);
   const [selectedSource, setSelectedSource] = useState<SourceCardData | null>(
     null
@@ -144,6 +155,17 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
 
     return hasSource ? selectedSource : null;
   }, [activeConversation, selectedSource]);
+
+  const selectedDocumentName = useMemo(() => {
+    if (!selectedDocumentId) {
+      return "All documents";
+    }
+
+    return (
+      documents.find((document) => document.id === selectedDocumentId)?.name ??
+      "Selected document"
+    );
+  }, [documents, selectedDocumentId]);
 
   const loadConversations = useCallback(async () => {
     setIsLoadingHistory(true);
@@ -186,10 +208,50 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
     }
   }, [addToast]);
 
+  const loadDocuments = useCallback(async () => {
+    setIsLoadingDocuments(true);
+
+    try {
+      const response = await fetch("/api/chat/documents", {
+        cache: "no-store",
+      });
+      const data = (await response.json()) as {
+        documents?: ChatDocumentOption[];
+        error?: string;
+      };
+
+      if (!response.ok) {
+        throw new Error(data.error ?? "Failed to load documents.");
+      }
+
+      const readyDocuments = data.documents ?? [];
+      setDocuments(readyDocuments);
+      setSelectedDocumentId((current) =>
+        current && readyDocuments.some((document) => document.id === current)
+          ? current
+          : ""
+      );
+    } catch (error) {
+      addToast({
+        type: "error",
+        title: "Failed to load documents",
+        description:
+          error instanceof Error ? error.message : "Failed to load documents.",
+      });
+    } finally {
+      setIsLoadingDocuments(false);
+    }
+  }, [addToast]);
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     loadConversations();
   }, [loadConversations]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadDocuments();
+  }, [loadDocuments]);
 
   useEffect(() => {
     scrollToBottom("auto");
@@ -312,7 +374,10 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ message: text }),
+        body: JSON.stringify({
+          message: text,
+          documentId: selectedDocumentId || null,
+        }),
         signal: controller.signal,
       });
 
@@ -715,6 +780,33 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
             </Link>
           </div>
 
+          <div className="mx-3 hidden min-w-0 flex-1 justify-center md:flex">
+            <label className="sr-only" htmlFor="document-focus">
+              Document focus
+            </label>
+            <div className="flex min-w-0 max-w-sm items-center gap-2 rounded-md border bg-background px-3 py-2">
+              <FileText
+                className="size-4 shrink-0 text-muted-foreground"
+                aria-hidden="true"
+              />
+              <select
+                id="document-focus"
+                value={selectedDocumentId}
+                onChange={(event) => setSelectedDocumentId(event.target.value)}
+                disabled={isStreaming || isLoadingDocuments}
+                title={`Document focus: ${selectedDocumentName}`}
+                className="min-w-0 max-w-64 bg-transparent text-sm outline-none disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                <option value="">All documents</option>
+                {documents.map((document) => (
+                  <option key={document.id} value={document.id}>
+                    {document.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
           <div className="flex min-w-0 items-center gap-3">
             <div className="hidden min-w-0 text-right sm:block">
               <p className="truncate text-sm font-medium">{userName}</p>
@@ -790,6 +882,33 @@ export function ChatClient({ userName, userEmail }: ChatClientProps) {
           ) : null}
 
           <section className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+            <div className="shrink-0 border-b px-4 py-2 md:hidden">
+              <label className="sr-only" htmlFor="mobile-document-focus">
+                Document focus
+              </label>
+              <div className="flex min-w-0 items-center gap-2 rounded-md border bg-background px-3 py-2">
+                <FileText
+                  className="size-4 shrink-0 text-muted-foreground"
+                  aria-hidden="true"
+                />
+                <select
+                  id="mobile-document-focus"
+                  value={selectedDocumentId}
+                  onChange={(event) => setSelectedDocumentId(event.target.value)}
+                  disabled={isStreaming || isLoadingDocuments}
+                  title={`Document focus: ${selectedDocumentName}`}
+                  className="min-w-0 flex-1 bg-transparent text-sm outline-none disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  <option value="">All documents</option>
+                  {documents.map((document) => (
+                    <option key={document.id} value={document.id}>
+                      {document.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
             <div
               ref={scrollAreaRef}
               className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-6 md:px-8"

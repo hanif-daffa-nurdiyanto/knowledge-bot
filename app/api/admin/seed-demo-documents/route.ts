@@ -1,9 +1,11 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { after } from "next/server";
 
 import { requireAdminApiSession } from "@/lib/auth/admin";
 import { createIngestionJob } from "@/lib/ingest/jobs";
 import { deleteDocumentFile, uploadDocumentFile } from "@/lib/ingest/storage";
+import { triggerIngestionWorker } from "@/lib/ingest/worker-trigger";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -24,7 +26,7 @@ const demoDocuments = [
   },
 ];
 
-export async function POST() {
+export async function POST(request: Request) {
   const { session, response } = await requireAdminApiSession();
 
   if (response) {
@@ -139,6 +141,11 @@ export async function POST() {
         { status: 500 }
       );
     }
+  }
+
+  if (seeded.length > 0) {
+    const origin = new URL(request.url).origin;
+    after(() => triggerIngestionWorker({ origin, limit: seeded.length }));
   }
 
   return Response.json(
