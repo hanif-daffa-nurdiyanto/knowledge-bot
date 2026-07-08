@@ -1,4 +1,8 @@
 import { auth } from "@/auth";
+import {
+  createDocumentSignedUrl,
+  DOCUMENT_UPLOADS_BUCKET,
+} from "@/lib/ingest/storage";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const runtime = "nodejs";
@@ -72,7 +76,8 @@ export async function GET(
   }
 
   const metadata = (document.metadata ?? {}) as DocumentMetadata;
-  const previewUrl = buildPreviewUrl({
+  const previewUrl = await buildPreviewUrl({
+    storagePath: document.storage_path,
     sourceUrl: document.source_url,
     metadata,
     pageNumber: chunk.page_number,
@@ -93,16 +98,31 @@ export async function GET(
   });
 }
 
-function buildPreviewUrl({
+async function buildPreviewUrl({
+  storagePath,
   sourceUrl,
   metadata,
   pageNumber,
 }: {
+  storagePath: string | null;
   sourceUrl: string | null;
   metadata: DocumentMetadata;
   pageNumber: number | null;
 }) {
   const hash = pageNumber ? `#page=${pageNumber}` : "";
+
+  if (storagePath) {
+    try {
+      const signedUrl = await createDocumentSignedUrl(
+        DOCUMENT_UPLOADS_BUCKET,
+        storagePath
+      );
+
+      return `${signedUrl}${hash}`;
+    } catch (error) {
+      console.error("Failed to create signed document preview URL", error);
+    }
+  }
 
   if (sourceUrl && isPreviewableUrl(sourceUrl)) {
     return `${sourceUrl}${hash}`;

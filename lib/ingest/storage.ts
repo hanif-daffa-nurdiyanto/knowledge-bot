@@ -52,6 +52,23 @@ export async function downloadDocumentFile(
   return Buffer.from(await data.arrayBuffer());
 }
 
+export async function createDocumentSignedUrl(
+  storageBucket: string,
+  storagePath: string,
+  expiresInSeconds = 60 * 10
+) {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase.storage
+    .from(storageBucket)
+    .createSignedUrl(storagePath, expiresInSeconds);
+
+  if (error) {
+    throw error;
+  }
+
+  return data.signedUrl;
+}
+
 export async function deleteDocumentFile(
   storageBucket: string,
   storagePath: string

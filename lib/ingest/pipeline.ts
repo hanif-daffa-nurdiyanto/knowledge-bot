@@ -12,8 +12,8 @@ import { parsePdfToPages } from "@/lib/ingest/pdf";
 import { downloadDocumentFile } from "@/lib/ingest/storage";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-const CHUNK_SIZE = 500;
-const CHUNK_OVERLAP = 50;
+const CHUNK_SIZE = 180;
+const CHUNK_OVERLAP = 40;
 const INSERT_BATCH_SIZE = 100;
 
 type ProcessPdfDocumentInput = {

@@ -1251,7 +1251,8 @@ function DocumentPreviewPanel({
   onClose: () => void;
 }) {
   const previewUrl = preview?.document.preview_url ?? null;
-  const chunks = preview?.nearby_chunks ?? [];
+  const focusedPage = source.page_number ?? preview?.selected_chunk.page_number ?? null;
+  const highlightText = preview?.selected_chunk.content ?? "";
 
   return (
     <>
@@ -1261,103 +1262,309 @@ function DocumentPreviewPanel({
         className="fixed inset-0 z-40 bg-background/70 backdrop-blur-sm md:hidden"
         onClick={onClose}
       />
-      <aside className="fixed inset-x-3 bottom-4 top-20 z-50 flex flex-col overflow-hidden rounded-lg border bg-background shadow-xl md:relative md:inset-auto md:z-auto md:w-[28rem] md:shrink-0 md:rounded-none md:border-y-0 md:border-r-0 md:shadow-none">
-      <div className="flex h-16 shrink-0 items-center justify-between border-b px-4">
-        <div className="flex min-w-0 items-center gap-3">
-          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-            <FileSearch className="size-5" aria-hidden="true" />
-          </div>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold">
-              {preview?.document.name ?? source.document_name}
-            </p>
-            <p className="truncate text-xs text-muted-foreground">
-              {source.page_number ? `Page ${source.page_number}` : "No page"} -
-              Chunk {source.chunk_index}
-            </p>
-          </div>
-        </div>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          onClick={onClose}
-          aria-label="Close document preview"
-        >
-          <PanelRightClose className="size-5" aria-hidden="true" />
-        </Button>
-      </div>
-
-      <div className="min-h-0 flex-1 overflow-y-auto">
-        {isLoading ? (
-          <div className="flex h-full items-center justify-center gap-2 text-sm text-muted-foreground">
-            <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-            Loading preview...
-          </div>
-        ) : (
-          <div className="flex min-h-full flex-col">
-            {previewUrl ? (
-              <div className="h-[42dvh] min-h-56 border-b bg-muted md:h-[52dvh] md:min-h-80">
-                <iframe
-                  title={`Preview ${preview?.document.name ?? source.document_name}`}
-                  src={previewUrl}
-                  className="h-full w-full"
-                />
-              </div>
-            ) : (
-              null
-            )}
-
-            <div className="space-y-4 p-4">
-              <div className="flex items-center justify-between gap-3">
-                <h2 className="text-sm font-semibold">Source Context</h2>
-                {previewUrl ? (
-                  <Button type="button" variant="outline" size="sm" asChild>
-                    <a href={previewUrl} target="_blank" rel="noreferrer">
-                      <ExternalLink className="size-3.5" aria-hidden="true" />
-                      Open
-                    </a>
-                  </Button>
-                ) : null}
-              </div>
-
-              {chunks.length > 0 ? (
-                <div className="space-y-3">
-                  {chunks.map((chunk) => (
-                    <div
-                      key={chunk.chunk_index}
-                      className={cn(
-                        "rounded-md border p-3",
-                        chunk.chunk_index === source.chunk_index
-                          ? "border-primary bg-primary/5"
-                          : "bg-card"
-                      )}
-                    >
-                      <div className="mb-2 flex flex-wrap gap-x-3 gap-y-1 text-xs font-medium text-muted-foreground">
-                        <span>Chunk {chunk.chunk_index}</span>
-                        <span>
-                          {chunk.page_number
-                            ? `Page ${chunk.page_number}`
-                            : "No page"}
-                        </span>
-                      </div>
-                      <p className="whitespace-pre-wrap text-sm leading-6">
-                        {chunk.content}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  No text preview is available for this source.
-                </p>
-              )}
+      <aside className="fixed inset-x-3 bottom-4 top-20 z-50 flex flex-col overflow-hidden rounded-lg border bg-background shadow-xl md:relative md:inset-auto md:z-auto md:w-[32rem] md:shrink-0 md:rounded-none md:border-y-0 md:border-r-0 md:shadow-none">
+        <div className="flex h-16 shrink-0 items-center justify-between border-b px-4">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+              <FileSearch className="size-5" aria-hidden="true" />
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold">
+                {preview?.document.name ?? source.document_name}
+              </p>
+              <p className="truncate text-xs text-muted-foreground">
+                {focusedPage ? `Focused page ${focusedPage}` : "Document preview"}
+              </p>
             </div>
           </div>
-        )}
-      </div>
+          <div className="flex shrink-0 items-center gap-2">
+            {previewUrl ? (
+              <Button type="button" variant="outline" size="sm" asChild>
+                <a href={previewUrl} target="_blank" rel="noreferrer">
+                  <ExternalLink className="size-3.5" aria-hidden="true" />
+                  Open
+                </a>
+              </Button>
+            ) : null}
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={onClose}
+              aria-label="Close document preview"
+            >
+              <PanelRightClose className="size-5" aria-hidden="true" />
+            </Button>
+          </div>
+        </div>
+
+        <div className="min-h-0 flex-1 bg-muted/40">
+          {isLoading ? (
+            <div className="flex h-full items-center justify-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+              Loading preview...
+            </div>
+          ) : previewUrl ? (
+            <div className="flex h-full min-h-0 flex-col">
+              <div className="flex shrink-0 items-center justify-between gap-3 border-b bg-primary/10 px-4 py-2 text-xs font-medium text-primary">
+                <span>
+                  {focusedPage
+                    ? `Page ${focusedPage} is selected from the answer source`
+                    : "Previewing source document"}
+                </span>
+                <span>Chunk {source.chunk_index}</span>
+              </div>
+              <div className="min-h-0 flex-1 bg-background p-2">
+                <PdfHighlightPreview
+                  highlightText={highlightText}
+                  pageNumber={focusedPage ?? 1}
+                  pdfUrl={previewUrl}
+                  title={`Preview ${preview?.document.name ?? source.document_name}`}
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center text-sm text-muted-foreground">
+              <FileSearch className="size-8" aria-hidden="true" />
+              <p>No original PDF preview is available for this source.</p>
+            </div>
+          )}
+        </div>
       </aside>
     </>
+  );
+}
+
+function PdfHighlightPreview({
+  highlightText,
+  pageNumber,
+  pdfUrl,
+  title,
+}: {
+  highlightText: string;
+  pageNumber: number;
+  pdfUrl: string;
+  title: string;
+}) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const pagesRef = useRef<HTMLDivElement | null>(null);
+  const [status, setStatus] = useState<"loading" | "ready" | "error">(
+    "loading"
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    const renderTasks: Array<{ cancel: () => void }> = [];
+
+    async function renderPdfPages() {
+      setStatus("loading");
+
+      try {
+        const pdfjs = await import("pdfjs-dist/build/pdf.mjs");
+        pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.mjs";
+
+        const loadingTask = pdfjs.getDocument({ url: pdfUrl });
+        const pdf = await loadingTask.promise;
+
+        if (cancelled) {
+          return;
+        }
+
+        const container = containerRef.current;
+        const pages = pagesRef.current;
+
+        if (!container || !pages) {
+          return;
+        }
+
+        pages.replaceChildren();
+        const normalizedHighlight = normalizePreviewText(highlightText);
+        const pageCount = pdf.numPages;
+
+        for (let currentPageNumber = 1; currentPageNumber <= pageCount; currentPageNumber++) {
+          if (cancelled) {
+            return;
+          }
+
+          const page = await pdf.getPage(currentPageNumber);
+          const baseViewport = page.getViewport({ scale: 1 });
+          const availableWidth = Math.max(container.clientWidth - 40, 320);
+          const scale = Math.min(availableWidth / baseViewport.width, 1.45);
+          const viewport = page.getViewport({ scale });
+          const pageShell = document.createElement("section");
+          const pageHeader = document.createElement("div");
+          const pageFrame = document.createElement("div");
+          const canvas = document.createElement("canvas");
+          const textLayer = document.createElement("div");
+          const isFocusedPage = currentPageNumber === pageNumber;
+
+          pageShell.dataset.pageNumber = String(currentPageNumber);
+          pageShell.className = "space-y-2";
+          pageHeader.className =
+            "mx-auto flex items-center justify-between text-xs font-medium text-muted-foreground";
+          pageHeader.style.width = `${viewport.width}px`;
+          pageHeader.textContent = `Page ${currentPageNumber}`;
+
+          if (isFocusedPage) {
+            const badge = document.createElement("span");
+            badge.textContent = "Focused chunk";
+            badge.className =
+              "rounded-sm bg-primary px-2 py-0.5 text-primary-foreground";
+            pageHeader.appendChild(badge);
+          }
+
+          pageFrame.className = isFocusedPage
+            ? "relative mx-auto w-fit rounded-md border-2 border-primary bg-background shadow-md"
+            : "relative mx-auto w-fit rounded-md border bg-background shadow-sm";
+          canvas.className = "block rounded-[calc(var(--radius)-2px)]";
+          textLayer.className = "pointer-events-none absolute inset-0";
+          textLayer.setAttribute("aria-hidden", "true");
+
+          canvas.width = Math.floor(viewport.width);
+          canvas.height = Math.floor(viewport.height);
+          canvas.style.width = `${viewport.width}px`;
+          canvas.style.height = `${viewport.height}px`;
+          textLayer.style.width = `${viewport.width}px`;
+          textLayer.style.height = `${viewport.height}px`;
+
+          pageFrame.append(canvas, textLayer);
+          pageShell.append(pageHeader, pageFrame);
+          pages.appendChild(pageShell);
+
+          const context = canvas.getContext("2d");
+
+          if (!context) {
+            throw new Error("Could not create PDF canvas context.");
+          }
+
+          const renderTask = page.render({
+            canvas,
+            canvasContext: context,
+            viewport,
+          });
+          renderTasks.push(renderTask);
+          await renderTask.promise;
+
+          const textContent = await page.getTextContent();
+
+          for (const item of textContent.items) {
+            if (!isPdfTextItem(item) || !item.str.trim()) {
+              continue;
+            }
+
+            const transform = pdfjs.Util.transform(
+              viewport.transform,
+              item.transform
+            );
+            const fontHeight = Math.hypot(transform[2], transform[3]);
+            const span = document.createElement("span");
+            const normalizedItem = normalizePreviewText(item.str);
+            const shouldHighlight =
+              isFocusedPage &&
+              normalizedItem.length >= 4 &&
+              normalizedHighlight.includes(normalizedItem);
+
+            span.textContent = item.str;
+            span.style.position = "absolute";
+            span.style.left = `${transform[4]}px`;
+            span.style.top = `${transform[5] - fontHeight}px`;
+            span.style.fontSize = `${fontHeight}px`;
+            span.style.lineHeight = "1";
+            span.style.whiteSpace = "pre";
+            span.style.color = shouldHighlight
+              ? "rgb(24 24 27)"
+              : "transparent";
+            span.style.transformOrigin = "0 0";
+            span.style.background = shouldHighlight
+              ? "rgb(254 240 138 / 0.72)"
+              : "transparent";
+            span.style.borderRadius = shouldHighlight ? "2px" : "0";
+            span.style.boxShadow = shouldHighlight
+              ? "0 0 0 1px rgb(250 204 21 / 0.55)"
+              : "none";
+
+            textLayer.appendChild(span);
+          }
+        }
+
+        if (!cancelled) {
+          setStatus("ready");
+          requestAnimationFrame(() => {
+            const focusedPageElement = pages.querySelector(
+              `[data-page-number="${pageNumber}"]`
+            );
+
+            focusedPageElement?.scrollIntoView({
+              block: "center",
+              behavior: "smooth",
+            });
+          });
+        }
+      } catch (error) {
+        if (!cancelled) {
+          console.error("Failed to render highlighted PDF preview", error);
+          setStatus("error");
+        }
+      }
+    }
+
+    renderPdfPages();
+
+    return () => {
+      cancelled = true;
+      for (const task of renderTasks) {
+        task.cancel();
+      }
+    };
+  }, [highlightText, pageNumber, pdfUrl]);
+
+  return (
+    <div
+      ref={containerRef}
+      className="relative h-full min-h-[calc(100dvh-12rem)] overflow-auto rounded-md border-2 border-primary/40 bg-muted p-3 md:min-h-0"
+    >
+      {status === "loading" ? (
+        <div className="absolute inset-0 z-10 flex items-center justify-center gap-2 bg-background/80 text-sm text-muted-foreground">
+          <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+          Loading highlighted page...
+        </div>
+      ) : null}
+      {status === "error" ? (
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-background px-6 text-center text-sm text-muted-foreground">
+          <FileSearch className="size-8" aria-hidden="true" />
+          <p>Could not render the highlighted PDF page.</p>
+          <Button type="button" variant="outline" size="sm" asChild>
+            <a href={pdfUrl} target="_blank" rel="noreferrer">
+              <ExternalLink className="size-3.5" aria-hidden="true" />
+              Open original
+            </a>
+          </Button>
+        </div>
+      ) : null}
+      <div ref={pagesRef} className="space-y-5" title={title} />
+    </div>
+  );
+}
+
+function normalizePreviewText(value: string) {
+  return value
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function isPdfTextItem(
+  item: unknown
+): item is { str: string; transform: number[] } {
+  return (
+    typeof item === "object" &&
+    item !== null &&
+    "str" in item &&
+    "transform" in item &&
+    typeof item.str === "string" &&
+    Array.isArray(item.transform)
   );
 }
 
